@@ -1,0 +1,12 @@
+1.直接在configuration中排除
+configurations {
+    compile.exclude module: 'commons'
+    all*.exclude group: 'org.gradle.test.excludes', module: 'reports'
+}
+
+2.在具体的某个dependency中排除
+dependencies {
+    compile("org.gradle.test.excludes:api:1.0") {
+        exclude module: 'shared'
+    }
+}
