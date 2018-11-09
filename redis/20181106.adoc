@@ -1,0 +1,57 @@
+redis 支持的数据类型：string，hash，list，set，zset（sorted set：有序集合）。
+{
+  string 类型的值最大能存储 512MB。用get和set。
+  每个 hash 可以存储 2^32 -1 键值对（40多亿）。hget key fieldKey;hgetall。
+  列表最多可存储 2^32 - 1 元素 (4294967295, 每个列表可存储40多亿).lpush key 一个value;lrange key start size。
+  Set是string类型的无序集合。集合是通过哈希表实现的，所以添加，删除，查找的复杂度都是O(1)。
+  sadd key member; smembers key。集合中最大的成员数为 2^32 - 1(4294967295, 每个集合可存储40多亿个成员)。
+
+  zset 和 set 一样也是string类型元素的集合,且不允许重复的成员。
+  不同的是每个元素都会关联一个double类型的分数。redis正是通过分数来为集合中的成员进行从小到大的排序。
+  zset的成员是唯一的,但分数(score)却可以重复。zadd key score member
+
+}
+{
+  list适合：1,最新消息排行等功能(比如朋友圈的时间线) 2,消息队列
+
+  set：1、共同好友 2、利用唯一性,统计访问网站的所有独立ip 3、好友推荐时,根据tag求交集,大于某个阈值就可以推荐
+
+  zset： 	1、排行榜 2、带权重的消息队列
+}
+
+每个数据库对外都是一个从0开始的递增数字命名，Redis默认支持16个数据库（可以通过配置文件支持更多，无上限），
+可以通过配置databases来修改这一数字。客户端与Redis建立连接后会自动选择0号数据库，不过可以随时使用SELECT命令更换数据库
+FLUSHALL命令可以清空一个Redis实例中所有数据库中的数据。
+
+Java代码基本示例：
+{
+
+  import java.util.List;
+  import redis.clients.jedis.Jedis;
+
+  public class RedisListJava {
+      public static void main(String[] args) {
+          //连接本地的 Redis 服务
+          Jedis jedis = new Jedis("localhost");
+          System.out.println("连接成功");
+          //存储数据到列表中
+          jedis.lpush("site-list", "Runoob");
+          jedis.lpush("site-list", "Google");
+          jedis.lpush("site-list", "Taobao");
+          // 获取存储的数据并输出
+          List<String> list = jedis.lrange("site-list", 0 ,2);
+          for(int i=0; i<list.size(); i++) {
+              System.out.println("列表项为: "+list.get(i));
+          }
+
+          // 获取数据并输出
+          Set<String> keys = jedis.keys("*");
+          Iterator<String> it=keys.iterator() ;
+          while(it.hasNext()){
+              String key = it.next();
+              System.out.println(key);
+          }
+      }
+  }
+
+}
