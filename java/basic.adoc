@@ -1,0 +1,28 @@
+1. jdk 和 jvm 的关系
+jdk里面包含了jre，jre包含了jvm.
+
+jdk：Java Development Kit（java开发工具箱），JDK 是整个Java的核心，包括了Java运行环境，Java工具和Java基础的类库。
+jvm：java虚拟机，也就是java的运行环境。
+所以，装了eclipse，JDK之后，JVM就已经装好了，不需要啦。
+
+2. 部linux服务器的jdk和gradle
+
+jdk，gradle下载完安装包，解压
+在 /etc/profile里添加
+export JAVA_HOME=/home/ubuntu/jdk1.8.0_172
+export PATH=$JAVA_HOME/bin:$PATH
+
+export CATALINA_HOME=/home/ubuntu/apache-tomcat-9.0.1
+
+export GRADLE_HOME=/home/ubuntu/gradle-4.6
+export PATH=$GRADLE_HOME/bin:$JAVA_HOME/bin:$PATH
+
+gradle -v;java -version可检验是否安装成功
+
+3. javac 编译.java文件， java命令执行编译生成的.class文件
+
+通过java.exe编译器编译我们的.java源代码文件生成出.class文件了。
+这些.class文件是交由JVM来解析运行！
+JVM是运行在操作系统之上的，每个操作系统的指令是不同的，而JDK是区分操作系统的，只要你的本地系统装了JDK，这个JDK就是能够和当前系统兼容的。
+而class字节码运行在JVM之上，所以不用关心class字节码是在哪个操作系统编译的，只要符合JVM规范，那么，这个字节码文件就是可运行的。
+所以Java就做到了跨平台--->一次编译，到处运行！
