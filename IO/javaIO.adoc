@@ -1,3 +1,187 @@
+IO是计算机中Input和Output简称，即输入和输出。 无论是系统、还是语言的设计中IO的设计都是异常复杂的。
+Java语言在IO设计方面是比较成功的，不仅是面向对象，而且利用装饰器设计模式（后面会写针对设计模式的文章）减少了大量的类，提供了较好的扩展性。
+
+//输出流
+public static void outputStream() throws IOException{
+    //创建一个File实例
+    File file = new File("/home/wenhaibo/IOTest.txt");
+    //FileOutputStream为文件输出流
+    FileOutputStream out = new FileOutputStream(file);
+    //将内容转换为字节码输出
+    out.write("This is IOTest".getBytes());
+    //强制输出内存中所有内容
+    out.flush();
+    //关闭输出流
+    out.close();
+}
+//输入流
+public static void inputStream() throws IOException{
+    //创建一个File实例
+    File file = new File("/home/wenhaibo/IOTest.txt");
+    //FileInputStream为文件输入流
+    FileInputStream in = new FileInputStream(file);
+    byte[] b = new byte[1024];
+    //将 byte.length 个字节的数据读入一个 byte 数组中
+    int len =in.read(b);
+    //将字节码转为字符串打印输出
+    System.out.println(new String(b, 0, len));
+    //关闭输入流
+    in.close();
+}
+上面的实例中用的字节流方式写入/读取数据，Java IO不仅提供字节流方式还通过了字符流处理方式，处理字符流用Reader、Writer两个专门操作字符流的类。
+
+//字符流
+public static void outputStreamWriter() throws IOException{
+    //创建一个File实例
+    File file = new File("/home/wenhaibo/IOTest.txt");
+    //FileWriter为文件输出流
+    Writer out = new FileWriter(file);
+    //直接输出字符
+    out.write("This is IOTest");
+    //强制输出内存中所有内容
+    out.flush();
+    //关闭输出流
+    out.close();
+}
+
+public static void inputStreamReader() throws IOException{
+    //创建一个File实例
+    File file = new File("/home/wenhaibo/IOTest.txt");
+    //Reader为文件输入流
+    Reader in=new FileReader(file);
+    char[] c=new char[1024];
+    //将 byte.length 个字节的数据读入一个 byte 数组中
+    int len =in.read(c);
+    //将字节码转为字符串打印输出
+    System.out.println(new String(c, 0, len));
+    //关闭输入流
+    in.close();
+
+}
+
+Java缓冲流是在输入流和输出流之上进行了一次包装（装饰器设计模式），目的是解决频繁写入/读取数据时效率差的问题。缓冲流先将数据缓存起来，然后一起写入或读取出来。
+
+字节缓冲流类：BufferedInputStream 和 BufferedOutputStream
+
+字符缓冲流类：BufferedReader 和 BufferedWriter
+
+flush()方法
+
+当向文件写入数据时是先将输出流写入到缓冲区，当缓冲区写满后才将缓冲区的内容输出到文件中。但是当主机完成输出流的输出后，有可能缓冲区这个时候还没有被填满，
+这样的话，就会一直等待主机发送内容，这时候，就可以使用flush()方法将缓冲区的内容强制输出到文件中，清空缓冲区。
+
+所以，一般在关闭输出流之前，要先调用flush()方法强制缓冲区中的内容输出，并清空缓冲区
+
+因为传统的IO是阻塞而且低效的，JDK 1.4 提供了NIO（New IO）API。
+
+那传统的IO和NIO有哪些不同？
+{
+    1.面向流与面向缓冲
+    NIO中引入了缓冲区的概念，缓冲区作为传输数据的基本单位块，所有对数据的操作都是基于将数据移进/移出缓冲区而来；读数据的时候从缓冲区中取，写的时候将数据填入缓冲区。
+    尽管传统JavaIO中也有相应的缓冲区过滤器流（BufferedInputStream等），但是移进/移出的操作是由程序员来包装的，它本质是对数据结构化和积累达到处理时的方便，
+    并不是一种提高I/O效率的措施。NIO的缓冲区则不然，对缓冲区的移进/移出操作是由底层操作系统来实现的。
+    除了效率上的差别外，缓冲区在数据分析和处理上也带来的很大的便利和灵活性。
+
+    2.阻塞与非阻塞IO
+    传统JavaIO是基于阻塞I/O模型。这意味着，当一个线程调用read() 或 write()时，该线程被阻塞，直到有一些数据被读取，或数据完全写入。
+    该线程在此期间不能再干任何事情了。 Java NIO的非阻塞模式，使一个线程从某通道发送请求读取数据，但是它仅能得到目前可用的数据，
+    如果目前没有数据可用时，就什么都不会获取。而不是保持线程阻塞，所以直至数据变的可以读取之前，该线程可以继续做其他的事情。
+     非阻塞写也是如此。一个线程请求写入一些数据到某通道，但不需要等待它完全写入，这个线程同时可以去做别的事情。
+     线程通常将非阻塞IO的空闲时间用于在其它通道上执行IO操作，所以一个单独的线程现在可以管理多个输入和输出通道（channel）。
+}
+
+Java NIO 中Channel，Buffer 和 Selector 构成了核心的API。
+{
+  1.Channel
+  Channel（通道）和IO中的流是差不多一个等级的。只不过流是单向的，譬如：InputStream, OutputStream.而Channel是双向的，既可以用来进行读操作，又可以用来进行写操作。
+  NIO中的Channel的主要实现有：
+    FileChannel
+    DatagramChannel
+    SocketChannel
+    ServerSocketChannel
+    分别可以对应文件IO、UDP和TCP（Server和Client）。
+
+  2.Buffer
+  NIO中的关键Buffer实现有：ByteBuffer, CharBuffer, DoubleBuffer, FloatBuffer, IntBuffer, LongBuffer, ShortBuffer，
+  分别对应基本数据类型: byte, char, double, float, int, long, short。
+
+  3.选择器（Selectors）
+  Java NIO的选择器允许一个单独的线程来监视多个输入通道，你可以注册多个通道使用一个选择器，然后使用一个单独的线程来“选择”通道：这些通道里已经有可以处理的输入，
+  或者选择已准备写入的通道。这种选择机制，使得一个单独的线程很容易来管理多个通道。
+
+  //使用NOI输出
+ public static void inputNIOChannel() throws IOException {
+     //创建一个File实例
+     File file = new File("/home/wenhaibo/IOTest.txt");
+     //FileInputStream为文件输入流
+     FileInputStream in = new FileInputStream(file);
+     //缓冲器向通道输入数据
+     FileChannel fileChannel = in.getChannel();
+     //创建一个容量为1024字节的ByteBuffer
+     ByteBuffer buf = ByteBuffer.allocate(1024);
+     //写入数据到Buffer
+     int bytesRead = fileChannel.read(buf);
+     while(bytesRead != -1)
+     {
+         //回绕缓冲区（输出通道会从数据的开头而不是末尾开始）
+         buf.flip();
+         while(buf.hasRemaining())
+         {
+             System.out.print((char)buf.get());
+         }
+         /**
+          * 压缩此缓冲区，compact方法会执行两个动作
+          * 1.清除之前写好的字符
+          * 2.通过标记位置为0
+          * 这就为什么要结合filp()使用
+          */
+         buf.compact();
+         //写入数据到Buffer
+         bytesRead = fileChannel.read(buf);
+     }
+ }
+}
+实际应用中在不考虑并发和读取/写入数据使用频率比较高的情况下Java IO已经可以胜任，但在使用到网络IO中Java IO已经不能满足实际需求，Java NIO 无疑是更好的选择
+
+
+在IO设计中，我们从InputStream或 Reader逐字节读取数据。假设你正在处理一基于行的文本数据流，
+该文本行的流可以这样处理：
+InputStream input = … ; // get the InputStream from the client socket
+BufferedReader reader = new BufferedReader(new InputStreamReader(input));
+
+	String nameLine   = reader.readLine();
+	String ageLine    = reader.readLine();
+	String emailLine  = reader.readLine();
+	String phoneLine  = reader.readLine();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 https://www.cnblogs.com/progor/p/9357676.html
 
 程序中的输入输出都是以流的形式保存的，流中保存的实际上全都是字节文件。
