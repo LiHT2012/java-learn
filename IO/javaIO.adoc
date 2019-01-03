@@ -94,20 +94,51 @@ Java NIO 中Channel，Buffer 和 Selector 构成了核心的API。
 {
   1.Channel
   Channel（通道）和IO中的流是差不多一个等级的。只不过流是单向的，譬如：InputStream, OutputStream.而Channel是双向的，既可以用来进行读操作，又可以用来进行写操作。
+通道：类似于流，但是可以异步读写数据（流只能同步读写），通道是双向的，（流是单向的），通道的数据总是要先读到一个buffer 或者 从一个buffer写入，即通道与buffer进行数据交互。
   NIO中的Channel的主要实现有：
-    FileChannel
-    DatagramChannel
-    SocketChannel
-    ServerSocketChannel
+    FileChannel：从文件中读写数据。　　
+    DatagramChannel：能通过UDP读写网络中的数据。　　
+    SocketChannel：能通过TCP读写网络中的数据。　　
+    ServerSocketChannel        ：可以监听新进来的TCP连接，像Web服务器那样。对每一个新进来的连接都会创建一个SocketChannel。　　
     分别可以对应文件IO、UDP和TCP（Server和Client）。
+    FileChannel比较特殊，它可以与通道进行数据交互， 不能切换到非阻塞模式，套接字通道可以切换到非阻塞模式；
 
-  2.Buffer
+  2.Buffer:本质上是一块可以存储数据的内存，被封装成了buffer对象而已！
   NIO中的关键Buffer实现有：ByteBuffer, CharBuffer, DoubleBuffer, FloatBuffer, IntBuffer, LongBuffer, ShortBuffer，
   分别对应基本数据类型: byte, char, double, float, int, long, short。
+  {
+    常用方法：
+
+      　　allocate() - 分配一块缓冲区　　
+      　　put() -  向缓冲区写数据
+      　　get() - 向缓冲区读数据　　
+      　　filp() - 将缓冲区从写模式切换到读模式　　
+       　  clear() - 从读模式切换到写模式，不会清空数据，但后续写数据会覆盖原来的数据，即使有部分数据没有读，也会被遗忘；　　
+            compact() - 从读数据切换到写模式，数据不会被清空，会将所有未读的数据copy到缓冲区头部，后续写数据不会覆盖，而是在这些数据之后写数据
+      　　mark() - 对position做出标记，配合reset使用
+            reset() - 将position置为标记值　　　　
+
+          缓冲区的一些属性：
+    　　　　capacity - 缓冲区大小，无论是读模式还是写模式，此属性值不会变；
+    　　　　position - 写数据时，position表示当前写的位置，每写一个数据，会向下移动一个数据单元，初始为0；最大为capacity - 1
+　　　　　　切换到读模式时，position会被置为0，表示当前读的位置
+    　　　　limit - 写模式下，limit 相当于capacity 表示最多可以写多少数据，切换到读模式时，limit 等于原先的position，表示最多可以读多少数据。
+  }
+
 
   3.选择器（Selectors）
   Java NIO的选择器允许一个单独的线程来监视多个输入通道，你可以注册多个通道使用一个选择器，然后使用一个单独的线程来“选择”通道：这些通道里已经有可以处理的输入，
   或者选择已准备写入的通道。这种选择机制，使得一个单独的线程很容易来管理多个通道。
+  {
+    通道向选择器注册时，需要指定感兴趣的事件，选择器支持以下事件：
+        SelectionKey.OP_CONNECT
+        SelectionKey.OP_ACCEPT
+        SelectionKey.OP_READ
+        SelectionKey.OP_WRITE　　
+
+  　　如果你对不止一种事件感兴趣，那么可以用“位或”操作符将常量连接起来，如下：
+　　　int interestSet = SelectionKey.OP_READ | SelectionKey.OP_WRITE;
+  }
 
   //使用NOI输出
  public static void inputNIOChannel() throws IOException {
