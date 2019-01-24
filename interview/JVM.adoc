@@ -1,0 +1,143 @@
+Java的垃圾回收机制是通过GC线程执行的，它是java虚拟机自己使用的守护线程。负责清理所谓的"不可达"的对象。当程序创建对象时，GC就开始监控这个对象的地址、大小以及使用情况。
+当GC确定一些对象为"不可达"时，GC就有责任回收这些内存空间.
+
+{
+  链接：https://www.nowcoder.com/questionTerminal/a857af3cee5247bd965a56c3df49ae17
+  来源：牛客网
+
+  Java把内存分成两种，一种叫做栈内存，一种叫做堆内存。
+
+
+  在函数中定义的一些基本类型的变量和对象的引用变量都是在函数的栈内存中分配。当在一段代码块中定义一个变量时，java就在栈中为这个变量分配内存空间，当超过变量的作用域后，java会
+  自动释放掉为该变量分配的内存空间，该内存空间可以立刻被另作他用。
+
+
+  堆内存用于存放由new创建的对象和数组。在堆中分配的内存，由java虚拟机自动垃圾回收器来管理。在堆中产生了一个数组或者对象后，还可以在栈中定义一个特殊的变量，这个变量的取值
+  等于数组或者对象在堆内存中的首地址，在栈中的这个特殊的变量就变成了数组或者对象的引用变量，以后就可以在程序中使用栈内存中的引用变量来访问堆中的数组或者对象，引用变量相当于
+  为数组或者对象起的一个别名，或者代号。
+
+
+  引用变量是普通变量，定义时在栈中分配内存，引用变量在程序运行到作用域外释放。而数组＆对象本身在堆中分配，即使程序运行到使用new产生数组和对象的语句所在地代码块之外，
+  数组和对象本身占用的堆内存也不会被释放，数组和对象在没有引用变量指向它的时候（比如先前的引用变量x=null时），才变成垃圾，不能再被使用，但是仍然占着内存，在随后的一个
+  不确定的时间被垃圾回收器释放掉。这个也是java比较占内存的主要原因。
+
+ 以上段落来自于某一本Java程序设计的书中，实际上，栈中的变量指向堆内存中的变量，这就是Java中的指针。
+
+  总结起来就是对象存储在堆内存，引用变量存储在栈内存。栈内存指向堆内存。
+}
+Person per = new Person();
+
+//这其实是包含了两个步骤，声明和实例化
+
+Person per = null; //声明一个名为Person类的对象per
+
+per = new Person(); // 实例化这个per对象
+
+声明 指的是创建类的对象的过程；
+
+实例化 指的是用关键词new来开辟内存空间。
+
+ 在函数中定义的一些基本类型的变量和对象的引用变量都在函数的栈内存中分配。栈内存主要存放的是基本类型类型的数据 如( int, short, long, byte, float, double, boolean,
+  char) 和对象句柄。注意：并没有String基本类型、在栈内存的数据的大小及生存周期是必须确定的、其优点是寄存速度快、栈数据可以共享、缺点是数据固定、不够灵活。
+
+创建了两个引用，创建了两个对象。两个引用分别指向不同的两个对象。以上两段代码说明，只要是用new()来新建对象的，都会在堆中创建，而且其字符串是单独存值的，即使与栈中的数据相同,
+也不会与栈中的数据共享。
+
+https://maimai.cn/article/detail?fid=1029882755&efid=yaTpZmycLgsxGstBUjPJoQ
+
+String 类型的常量池比较特殊。它的主要使用方法有两种：
+
+直接使用双引号声明出来的 String 对象会直接存储在常量池中。
+如果不是用双引号声明的 String 对象，可以使用 String 提供的 intern 方法。String.intern() 是一个 Native 方法，它的作用是：如果运行时常量池中已经包含一个等于
+此 String 对象内容的字符串，则返回常量池中该字符串的引用；如果没有，则在常量池中创建与此 String 内容相同的字符串，并返回常量池中创建的字符串的引用。
+
+String s1 = new String("计算机");
+String s2 = s1.intern();
+String s3 = "计算机";
+System.out.println(s2);//计算机
+System.out.println(s1 == s2);//false，因为一个是堆内存中的String对象一个是常量池中的String对象，
+System.out.println(s3 == s2);//true，因为两个都是常量池中的String对象
+
+String 字符串拼接
+String str1 = "str";
+String str2 = "ing";
+
+String str3 = "str" + "ing";//常量池中的对象
+String str4 = str1 + str2; //在堆上创建的新的对象
+String str5 = "string";//常量池中的对象
+System.out.println(str3 == str4);//false
+System.out.println(str3 == str5);//true
+System.out.println(str4 == str5);//false
+
+尽量避免多个字符串拼接，因为这样会重新创建对象。如果需要改变字符串的话，可以使用 StringBuilder 或者 StringBuffer。
+String s1 = new String("abc"); // 这句话创建了几个对象？
+创建了两个对象。
+验证：
+String s1 = new String("abc");// 堆内存的地值值
+String s2 = "abc";
+System.out.println(s1 == s2);// 输出false,因为一个是堆内存，一个是常量池的内存，故两者是不同的。
+System.out.println(s1.equals(s2));// 输出true
+结果：
+false
+true
+解释：
+先有字符串 “abc” 放入常量池，然后 new 了一份字符串 “abc” 放入 Java 堆（字符串常量 “abc” 在编译期就已经确定放入常量池，而 Java 堆上的 “abc” 是在运行期初始化阶段
+才确定）
+，然后 Java 栈的 str1 指向 Java 堆上的 “abc”。
+
+8种基本类型的包装类和常量池
+
+    Java 基本类型的包装类的大部分都实现了常量池技术，即 Byte、Short、Integer、Long、Character、Boolean；这5种包装类默认创建了数值 [-128，127] 的相应类型的
+    缓存数据，但是超出此范围仍然会去创建新的对象。
+    两种浮点数类型的包装类 Float、Double 并没有实现常量池技术。
+
+Integer i1 = 33;
+Integer i2 = 33;
+System.out.println(i1 == i2);// 输出true
+Integer i11 = 333;
+Integer i22 = 333;
+System.out.println(i11 == i22);// 输出false
+Double i3 = 1.2;
+Double i4 = 1.2;
+System.out.println(i3 == i4);// 输出false
+Integer 缓存源代码：
+/**
+ *此方法将始终缓存-128到127（包括端点）范围内的值，并可以缓存此范围之外的其他值。
+ */
+public static Integer valueOf(int i) {
+    if (i >= IntegerCache.low && i <= IntegerCache.high)
+        return IntegerCache.cache[i + (-IntegerCache.low)];
+    return new Integer(i);
+}
+应用场景：
+
+    Integer i1=40；Java 在编译的时候会直接将代码封装成 Integer i1=Integer.valueOf(40); 从而使用常量池中的对象。
+    Integer i1 = new Integer(40) ;这种情况下会创建新的对象。
+
+Integer i1 = 40;
+Integer i2 = new Integer(40);
+System.out.println(i1==i2); //输出false
+Integer 比较（==）更丰富的一个例子：
+Integer i1 = 40;
+Integer i2 = 40;
+Integer i3 = 0;
+Integer i4 = new Integer(40);
+Integer i5 = new Integer(40);
+Integer i6 = new Integer(0);
+
+System.out.println("i1=i2   " + (i1 == i2));
+System.out.println("i1=i2+i3   " + (i1 == i2 + i3));
+System.out.println("i1=i4   " + (i1 == i4));
+System.out.println("i4=i5   " + (i4 == i5));
+System.out.println("i4=i5+i6   " + (i4 == i5 + i6));
+System.out.println("40=i5+i6   " + (40 == i5 + i6));
+结果：
+i1=i2   true
+i1=i2+i3   true
+i1=i4   false
+i4=i5   false
+i4=i5+i6   true
+40=i5+i6   true
+解释：
+语句 i4 == i5 + i6，因为 + 这个操作符不适用于 Integer 对象，首先 i5 和 i6 进行自动拆箱操作，进行数值相加，即 i4 == 40。然后Integer对象无法与数值进行直接比较，
+所以i4自动拆箱转为int值40，最终这条语句转为40 == 40进行数值比较。

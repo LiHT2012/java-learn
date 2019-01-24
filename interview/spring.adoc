@@ -1,0 +1,2 @@
+定制springbean的初始化和销毁逻辑:3 种
+https://blog.csdn.net/liujun03/article/details/81671041

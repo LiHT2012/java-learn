@@ -1,0 +1,42 @@
+http://www.jisupeixun.com/bishibaodian/list?id=96a61f0d-ab6f-4ab3-a3ad-0ae4f846a02e
+
+public static void main(String[] args) {
+	try {
+		System.exit(0);
+	} finally {
+		System.out.println("Finally");
+	}
+}//可以正常执行，但是没有输出
+/**
+  void java.lang.System.exit(int status)
+
+  Terminates the currently running Java Virtual Machine. The argument serves as a status code; by convention, a nonzero status code indicates abnormal termination.
+
+  This method calls the exit method in class Runtime. This method never returns normally.
+
+  The call System.exit(n) is effectively equivalent to the call:
+
+  Runtime.getRuntime().exit(n)
+
+  Parameters:
+  status exit status.
+**/
+
+有关Servlet的生命周期说法不正确的是：（）。
+A、Servlet的生命周期由Servlet实例控制
+B、init()方法在创建完Servlet实例后对其进行初始化，传递的参数为实现ServletConfig类的对象
+C、service()方法响应客户端发出的请求
+D、在容器移除servlet 时，调用destroy方法，进行资源的释放
+答案：A
+
+通常说来，下面哪个是不好的实践？
+A、所有的bean都是原型范畴
+B、全不正确
+C、让bean之间的相互依存关系最小
+D、持续集成
+答案：A
+
+#求重名的名及对应人数和语文平均分
+select s.name,count(s.name),avg(sc.ch) from `test-liht`.student s
+left join `test-liht`.score sc on sc.sn=s.sn
+group by s.name having count(s.name)>1;

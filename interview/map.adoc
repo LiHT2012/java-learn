@@ -1,0 +1,10 @@
+https://www.cnblogs.com/signheart/p/21d463eebb54f3e9139da3d43ee7bfda.html
+ConcurrentHashMap就是一个分段的hashtable ，根据自定的hashcode算法生成的对象来获取对应hashcode的分段块进行加锁，不用整体加锁，提高了效率.
+通过把整个Map分为N个Segment（类似HashTable），可以提供相同的线程安全，但是效率提升N倍，默认提升16倍。
+
+ConcurrentHashMap
+底层采用分段的数组+链表实现，线程安全
+通过把整个Map分为N个Segment，可以提供相同的线程安全，但是效率提升N倍，默认提升16倍。(读操作不加锁，由于HashEntry的value变量是 volatile的，也能保证读取到最新的值。)
+
+散列表要解决的一个问题就是散列值的冲突问题，通常是两种方法：链表法和开放地址法。链表法就是将相同hash值的对象组织成一个链表放在hash值对应的槽位；
+开放地址法是通过一个探测算法，当某个槽位已经被占据的情况下继续查找下一个可以使用的槽位。java.util.HashMap采用的链表法的方式，链表是单向链表。

@@ -1,0 +1,7 @@
+https://blog.csdn.net/happy_meng/article/details/79129061
+https://blog.csdn.net/shao_zhiqiang/article/details/51879763
+
+Solr 依存于Lucene，因为Solr底层的核心技术是使用Lucene 来实现的，Solr和Lucene的本质区别有以下三点：搜索服务器，企业级和管理。Lucene本质上是搜索库，不是独立的应用程序，
+而Solr是。Lucene专注于搜索底层的建设，而Solr专注于企业应用。Lucene不负责支撑搜索服务所必须的管理，而Solr负责。所以说，一句话概括 Solr:
+Solr是Lucene面向企业搜索应用的扩展。
+https://blog.csdn.net/cs_hnu_scw/article/details/79388080

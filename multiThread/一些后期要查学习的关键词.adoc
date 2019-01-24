@@ -1,0 +1,49 @@
+一些后期要查学习的关键词
+
+ReentrantReadWriteLock
+
+vs
+
+ReentrantLock
+
+java.util.concurrent.lock 中的 Lock 框架是锁定的一个抽象，它允许把锁定的实现作为 Java 类，而不是作为语言的特性来实现(更加面向对象)。这就为 Lock 的多种实现留下了空间，
+各种实现可能有不同的调度算法、性能特性或者锁定语义。 ReentrantLock 类实现了 Lock ，它拥有与 synchronized 相同的并发性和内存语义，
+但是添加了类似锁投票、定时锁等候和可中断锁等候的一些特性。此外，它还提供了在激烈争用情况下更佳的性能。
+（换句话说，当许多线程都想访问共享资源时，JVM 可以花更少的时候来调度线程，把更多时间用在执行线程上。）
+
+什么时候选择用 ReentrantLock 代替 synchronized
+在 Java1.5 中，synchronized 是性能低效的。因为这是一个重量级操作，需要调用操作接口，导致有可能加锁消耗的系统时间比加锁以外的操作还多。
+相比之下使用 Java 提供的 Lock 对象，性能更高一些。但是到了 Java1.6，发生了变化。synchronized 在语义上很清晰，可以进行很多优化，有适应自旋，锁消除，锁粗化，轻量级锁，
+偏向锁等等。导致在 Java1.6 上 synchronized 的性能并不比 Lock 差。官方也表示，他们也更支持 synchronized，在未来的版本中还有优化余地。
+
+所以在确实需要一些 synchronized 所没有的特性的时候，比如时间锁等候、可中断锁等候、无块结构锁、多个条件变量或者锁投票使用ReentrantLock。
+ReentrantLock 还具有可伸缩性的好处，应当在高度争用的情况下使用它，但是请记住，大多数 synchronized 块几乎从来没有出现过争用，所以可以把高度争用放在一边。
+我建议用 synchronized 开发，直到确实证明 synchronized 不合适，而不要仅仅是假设如果使用 ReentrantLock “性能会更好”。请记住，这些是供高级用户使用的高级工具。
+（而且，真正的高级用户喜欢选择能够找到的最简单工具，直到他们认为简单的工具不适用为止。）。一如既往，首先要把事情做好，然后再考虑是不是有必要做得更快。
+
+读写锁:ReentrantReadWriteLock
+一般的应用场景是： 如果有多个读线程，一个写线程，而且写线程在操作的时候需要阻塞读线程，那么此时就需要使用公平锁，要不然可能写线程一直获取不到锁，导致线程饿死。
+
+
+
+Integer dp =      Integer.valueOf("101011",2);
+		Integer mp =    Integer.valueOf("110000", 2);
+		Integer mdd = Integer.valueOf("001100", 2);
+		System.out.println("dp:" + dp);
+		System.out.println("mp:" + mp);
+		System.out.println("mdd:" + mdd);
+		String s = Integer.toBinaryString(44) ; //将十进制数转成字符串，例如n=5 ，s = "101"
+		System.out.println(s);
+
+
+		public static Integer updateManualOperStatus(Integer operStatus, Integer operation) {
+				Integer digit = 6;// 六种操作，则字符串长度为6
+				String binStr = "";
+				for (int i = digit - 1; i >= 0; i--) {
+					binStr += (operStatus >> i) & 1;
+				}
+		//		System.out.println(binStr);
+				binStr = binStr.substring(0, operation) + 1 + binStr.substring(operation +1);
+		//		System.out.println(binStr);
+				return Integer.valueOf(binStr, 2);
+			}

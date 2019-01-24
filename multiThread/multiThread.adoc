@@ -1,3 +1,6 @@
+读者写者，生产者消费者问题
+https://www.cnblogs.com/jiangyang/p/6007030.html
+
 1. 采用实现 Runnable、Callable 接口的方式创建多线程时，线程类只是实现了 Runnable 接口或 Callable 接口，还可以继承其他类。
 2. 使用继承 Thread 类的方式创建多线程时，编写简单，如果需要访问当前线程，则无需使用 Thread.currentThread() 方法，直接使用 this 即可获得当前线程。
 

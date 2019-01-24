@@ -1,0 +1,70 @@
+Kafka为什么这么快:磁盘顺序存储，不需要寻址.
+
+
+
+Kafka是分布式发布-订阅消息系统。它最初由LinkedIn公司开发，之后成为Apache项目的一部分。
+Kafka是一个分布式的，可划分的，冗余备份的持久性的日志服务。它主要用于处理活跃的流式数据。
+
+为了已在同时搞定在线应用（消息）和离线应用（数据文件，日志）Kafka就出现了。Kafka可以起到两个作用：
+  降低系统组网复杂度。
+  降低编程复杂度，各个子系统不在是相互协商接口，各个子系统类似插口插在插座上，Kafka承担高速数据总线的作用。
+
+Kafka主要特点：
+  同时为发布和订阅提供高吞吐量。据了解，Kafka每秒可以生产约25万消息（50 MB），每秒处理55万消息（110 MB）。
+  可进行持久化操作。将消息持久化到磁盘，因此可用于批量消费，例如ETL，以及实时应用程序。通过将数据持久化到硬盘以及replication防止数据丢失。
+  分布式系统，易于向外扩展。所有的producer、broker和consumer都会有多个，均为分布式的。无需停机即可扩展机器。
+  消息被处理的状态是在consumer端维护，而不是由server端维护。当失败时能自动平衡。
+  支持online和offline的场景。
+
+Kayka的整体架构非常简单，是显式分布式架构，producer、broker（kafka）和consumer都可以有多个。Producer，consumer实现Kafka注册的接口，数据从producer发送到broker，broker承担一个中间缓存和分发的作用。broker分发注册到系统中的consumer。broker的作用类似于缓存，即活跃的数据和离线处理系统之间的缓存。客户端和服务器端的通信，是基于简单，高性能，且与编程语言无关的TCP协议。几个基本概念：
+
+    Topic：特指Kafka处理的消息源（feeds of messages）的不同分类。
+    Partition：Topic物理上的分组，一个topic可以分为多个partition，每个partition是一个有序的队列。partition中的每条消息都会被分配一个有序的id（offset）。
+    Message：消息，是通信的基本单位，每个producer可以向一个topic（主题）发布一些消息。
+    Producers：消息和数据生产者，向Kafka的一个topic发布消息的过程叫做producers。
+    Consumers：消息和数据消费者，订阅topics并处理其发布的消息的过程叫做consumers。
+    Broker：缓存代理，Kafka集群中的一台或多台服务器统称为broker。
+
+https://www.toutiao.com/i6456660580726997517/
+Kafka服务器可以接收到的消息的最大大小是1000000字节。
+
+6、解释Kafka的Zookeeper是什么?我们可以在没有Zookeeper的情况下使用Kafka吗?
+
+Zookeeper是一个开放源码的、高性能的协调服务，它用于Kafka的分布式应用。
+
+不，不可能越过Zookeeper，直接联系Kafka broker。一旦Zookeeper停止工作，它就不能服务客户端请求。
+
+Zookeeper主要用于在集群中不同节点之间进行通信
+
+在Kafka中，它被用于提交偏移量，因此如果节点在任何情况下都失败了，它都可以从之前提交的偏移量中获取
+
+除此之外，它还执行其他活动，如: leader检测、分布式同步、配置管理、识别新节点何时离开或连接、集群、节点实时状态等等。
+
+https://blog.csdn.net/gupao123456/article/details/81224531
+https://my.oschina.net/JKOPERA/blog/1931191
+
+----
+
+为什么使用消息队列？消息队列的作用是什么？
+
+Kafka 的 Topic 和分区内部是如何存储的，有什么特点？
+
+与传统的消息系统相比，Kafka 的消费模型有什么优点?
+
+Kafka 如何实现分布式的数据存储与数据读取?
+
+Kafka 为什么比 RocketMQ 支持的单机 Partition 要少?
+
+为什么需要分区，也就是说主题只有一个分区，难道不行吗？
+
+日志为什么需要分段？
+
+Kafka 是依靠什么机制保持高可靠，高可用？
+
+消息队列如何保证消息幂等？
+
+让你自己设计个消息队列，你会怎么设计，会考虑哪些方面？
+
+----
+消息中间件:
+https://blog.csdn.net/wqc19920906/article/details/82193316

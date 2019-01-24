@@ -1,0 +1,1 @@
+abstract class和interface有什么区别

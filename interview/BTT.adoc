@@ -1,0 +1,10 @@
+BTT 是为金融机构提供的面向金融行业的电子商务应用框架模型，它是基于WebSphere、J2EE 组件技术、跨平台、支持多渠道金融服务和 SOA架构的综合解决方案。
+中文名 BTT 外文名 Banking Transformation Toolkit 产    品 基于Web 2.0的下一代网络银行 手机银行 Mobile Banking
+BTT建立在电子商务通用应用架构之上，为银行及金融行业提供多渠道组件支持，能够提供一个统一的可重用的开发框架。 IBMBTT解决方案是一个面向对象和分布式的应用框架，
+在其基础上不仅可以开发网上银行系统，BTT丰富的构造还可使其支持其它多种渠道，如网上银行系统(Internet Banking )，手机银行( Mobile Banking )，柜面业务系统( e-Teller)，
+电话服务中心(Call Center )，自动式信息亭( Kiosk )等。因此，BTT是基于银行核心应用的、全面银行电子商务解决方案的核心。
+IBM的BTT产品能够帮助银行实现基于Web 2.0的下一代网络银行。
+
+https://www.taodocs.com/p-40766859.html
+
+http://blog.sina.com.cn/s/blog_625f6f530100fd2e.html
