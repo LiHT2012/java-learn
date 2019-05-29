@@ -1,0 +1,28 @@
+public static void main(String[] args) {
+		List<Integer> list = Arrays.asList(1,2,3,4);
+		Iterator< Integer> it = list.iterator();
+//		System.out.println(it.next());
+//		while(it.hasNext()) {
+//			System.out.println(it.next());
+//		}
+		loop :for(Integer i : list) {//loop为标签名，可以任意起
+			for(Integer j : list) {
+				System.out.println(i*j);
+				if(i==3) {
+					break loop;
+				}
+			}
+		}
+		//
+		int[] arr = new int[] {1,2};
+		int[] arr2 = {1,2};
+		//定义3行4列的二维数组,对于整型数组会自动初始化0
+		int[][] arr34 = new int[3][4];
+		int [][] arr22 = {{1,2},{33,4}};
+		//用foreach循环
+		for(int[] i : arr34) {//行
+			for(int e : i) {//列
+				
+			}
+		}
+	}

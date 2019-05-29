@@ -58,3 +58,78 @@ auto-aof-rewrite-min-size 10mb
 Redis的解决方法：
 由于AOF的重写是由Redis主线程之外一个子线程执行，是在AOF写入的时候，会重新建立一个AOF重写缓冲区，当用户对数据库进行操作时，会把用户的操作追加到AOF重写缓冲区和AOF缓冲区中，
 此时AOF文件写入操作会同时从AOF缓冲区和AOF重写缓冲区两个地方读入数据，这样就保证了用户的添加修改操作的不丢失。
+
+
+redis vs pika
+
+pika一些资料链接：https://www.w3cschool.cn/pika/
+https://www.toutiao.com/a6283628736621461761/
+https://www.cnblogs.com/chenny7/p/5694887.html
+https://github.com/Qihoo360/pika/wiki
+https://github.com/Qihoo360/pika
+
+redis HA: redis high avilable高可用。
+
+1、目前项目用的是单机版的redis，单纯用于缓存，缓存了一些经常查询的关系（如一个用户所在的群组）和发送的验证码信息等。高性能受限于单核 CPU 的处理能力（Redis 是单线程机制），
+CPU 为主要瓶颈。
+
+2、Redis 多副本（主从）相对高可用
+
+Redis 多副本，采用主从（replication）部署结构，相较于单副本而言最大的特点就是主从实例间数据实时同步，并且提供数据持久化和备份策略。
+主从实例部署在不同的物理服务器上，根据公司的基础环境配置，可以实现同时对外提供服务和读写分离策略。
+缺点：故障恢复复杂，如果没有 RedisHA 系统（需要开发），当主库节点出现故障时，需要手动将一个从节点晋升为主节点，同时需要通知业务方变更配置，并且需要让其它从库节点去复制新主库节点，
+整个过程需要人为干预，比较繁琐；
+
+3、Redis Cluster 是社区版推出的 Redis 分布式集群解决方案，主要解决 Redis 分布式方面的需求，比如，当遇到单机内存，并发和流量等瓶颈的时候，Redis Cluster
+能起到很好的负载均衡的目的。
+
+Redis Cluster 集群节点最小配置 6 个节点以上（3 主 3 从），其中主节点提供读写操作，从节点作为备用节点，不提供请求，只作为故障转移使用。
+
+Redis Cluster 采用虚拟槽分区，所有的键根据哈希函数映射到 0～16383 个整数槽内，每个节点负责维护一部分槽以及槽所印映射的键值数据
+{
+  优点：
+
+  无中心架构；
+
+  数据按照 slot 存储分布在多个节点，节点间数据共享，可动态调整数据分布；
+
+  可扩展性：可线性扩展到 1000 多个节点，节点可动态添加或删除；
+
+  高可用性：部分节点不可用时，集群仍可用。通过增加 Slave 做 standby 数据副本，能够实现故障自动 failover，节点之间通过 gossip 协议交换状态信息，用投票机制完成 Slave 到 Master 的角色提升；
+
+  降低运维成本，提高系统的扩展性和可用性。
+
+  缺点：
+
+  Client 实现复杂，驱动要求实现 Smart Client，缓存 slots mapping 信息并及时更新，提高了开发难度，客户端的不成熟影响业务的稳定性。目前仅 JedisCluster 相对成熟，异常处理部分还不完善，比如常见的“max redirect exception”。
+
+  节点会因为某些原因发生阻塞（阻塞时间大于 clutser-node-timeout），被判断下线，这种 failover 是没有必要的。
+
+  数据通过异步复制，不保证数据的强一致性。
+
+  多个业务使用同一套集群时，无法根据统计区分冷热数据，资源隔离性较差，容易出现相互影响的情况。
+
+  Slave 在集群中充当“冷备”，不能缓解读压力，当然可以通过 SDK 的合理设计来提高 Slave 资源的利用率。
+
+  Key 批量操作限制，如使用 mset、mget 目前只支持具有相同 slot 值的 Key 执行批量操作。对于映射为不同 slot 值的 Key 由于 Keys 不支持跨 slot 查询，所以执行 mset、mget、sunion 等操作支持不友好。
+
+  Key 事务操作支持有限，只支持多 key 在同一节点上的事务操作，当多个 Key 分布于不同的节点上时无法使用事务功能。
+
+  Key 作为数据分区的最小粒度，不能将一个很大的键值对象如 hash、list 等映射到不同的节点。
+
+  不支持多数据库空间，单机下的 redis 可以支持到 16 个数据库，集群模式下只能使用 1 个数据库空间，即 db 0。
+
+  复制结构只支持一层，从节点只能复制主节点，不支持嵌套树状复制结构。
+
+  避免产生 hot-key，导致主库节点成为系统的短板。
+
+  避免产生 big-key，导致网卡撑爆、慢查询等。
+
+  重试时间应该大于 cluster-node-time 时间。
+
+  Redis Cluster 不建议使用 pipeline 和 multi-keys 操作，减少 max redirect 产生的场景。
+}
+4、Redis 自研
+Redis 自研的高可用解决方案，主要体现在配置中心、故障探测和 failover 的处理机制上，通常需要根据企业业务的实际线上环境来定制化。
+https://mp.weixin.qq.com/s?__biz=MzI3ODcxMzQzMw==&mid=2247487221&idx=1&sn=1c3182ad46e8781a04f49ec8ad53f482&chksm=eb538bc3dc2402d5df24a37ec0c0c31099d152df6d3b62380ccebf7f4ec04e64a8dadd83fd7b&scene=21#wechat_redirect
+https://www.toutiao.com/i6603115795910230532/?tt_from=weixin_moments&utm_campaign=client_share&wxshare_count=3&from=timeline&timestamp=1540856488&app=news_article&utm_source=weixin_moments&isappinstalled=0&iid=45842462918&utm_medium=toutiao_ios&group_id=6603115795910230532&pbid=6617930908832581123

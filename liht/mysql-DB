@@ -1,0 +1,47 @@
+https://www.cnblogs.com/jevo/p/3257222.html
+1.create database dbName;#创建数据库
+
+例如：create database test_db;#先执行
+create schema test_db;#再执行会报错，create schema test_db  Error Code: 1007. Can't create database 'test_db'; database exists	0.00048 sec
+#而直接在workbench中创建的也是scheme，语句CREATE SCHEMA `test_scheme` ;
+-----mysql 5.0.2及更高版本中scheme和database同义。
+
+scheme和database的区别：
+https://blog.csdn.net/zgcr654321/article/details/82078572
+
+
+
+2.删除数据库
+drop database dbName;
+
+3.更改表名
+alter table oldTableName rename to newTableName;
+
+4.改变数据表引擎
+alter table tableName engine="MyISAM";
+
+5.#坏库扫描修复(没用过)
+cd /var/lib/mysql/xxx && myisamchk playlist_block
+
+6.创建数据表
+
+Mysql>CREATE TABLE [if not exists] tableName (字段1名称 类型，字段2名称 类型，… ，PRIMARY kEY (主键名))
+
+mysql> create table table_name(column_name datatype {identity |null|not null},f_time TIMESTAMP(8),…) ENGINE=MyISAM AUTO_INCREMENT=3811 DEFAULT CHARSET=utf8;
+
+create table tb (id int unsigned not null auto_increment, Name char(20) not null, Age tinyint not null, primary key(id)); 
+
+
+7. 添加列：alter table 表名 add column 列名 varchar(30);
+
+    •  删除列：alter table 表名 drop column 列名;
+
+    •  修改列名MySQL： alter table bbb change nnnnn hh int; 
+
+8.添加主键约束：alter table 表名 add constraint 主键 （形如：PK_表名） primary key 表名(主键字段);
+
+添加外键约束：alter table 从表 add constraint 外键（形如：FK_从表_主表） foreign key 从表(外键字段) references 主表(主键字段);
+
+删除主键约束：alter table 表名 drop primary key;
+
+删除外键约束：alter table 表名 drop foreign key 外键（区分大小写）; 

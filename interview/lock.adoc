@@ -55,3 +55,10 @@ BDB:表级锁,页锁
 
 表级锁使用与并发性不高，以查询为主，少量更新的应用，比如小型的web应用；
 而行级锁适用于高并发环境下，对事务完整性要求较高的系统，如在线事务处理系统。
+
+
+mysql出现锁表的情况：
+1.查进程：show processlist;//查看数据库中表的状态，是否被锁
+2. kill processId;
+
+https://blog.csdn.net/a5582ddff/article/details/79566678

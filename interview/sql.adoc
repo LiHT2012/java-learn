@@ -1,0 +1,78 @@
+sql的行转列(PIVOT)与列转行(UNPIVOT)--是sql server提供的方法。
+在做数据统计的时候，行转列，列转行是经常碰到的问题。case when方式太麻烦了，而且可扩展性不强，可以使用 PIVOT，UNPIVOT比较快速实现行转列，列转行，而且可扩展性强.
+
+mysql的做法：
+select a.stuid as '学号',s.stunm as '姓名',
+MAX(case c.coursenm when '大学语文' then IFNULL(a.scores,0) else 0 end) as '大学语文',
+MAX(case c.coursenm when '新视野英语' then IFNULL(a.scores,0) else 0 end) as '新视野英语',
+MAX(case c.coursenm when '离散数学' then IFNULL(a.scores,0) else 0 end) as '离散数学',
+MAX(case c.coursenm when '概率论与数理统计' then IFNULL(a.scores,0) else 0 end) as '概率论与数理统计',
+MAX(case c.coursenm when '线性代数' then IFNULL(a.scores,0) else 0 end) as '线性代数'
+from score a
+left JOIN student s on a.stuid=s.stuid
+LEFT JOIN courses c on a.courseno=c.courseno
+
+GROUP BY a.stuid；
+（Max是为了只取相同的条件中的一条数据）。
+
+只有一个表的时候
+select sc.UserName,
+Max(IF(sc.Subject='语文',score,0)) as '语文',
+Max(IF(sc.Subject='数学',score,0)) as '数学',
+Max(IF(sc.Subject='英语',score,0)) as '英语',
+Max(IF(sc.Subject='生物',score,0)) as '生物' from `test-liht`.StudentScores as sc
+group by sc.UserName;
+
+动态，适用于列不确定的情况
+SET @EE='';
+select @EE :=CONCAT(@EE,'sum(if(subject= \'',subject,'\',score,0)) as ',subject, ',') AS aa FROM (SELECT DISTINCT subject FROM tb_score) A ;
+
+SET @QQ = CONCAT('select ifnull(userid,\'TOTAL\')as userid,',@EE,' sum(score) as TOTAL from tb_score group by userid WITH ROLLUP');
+-- SELECT @QQ;
+
+PREPARE stmt FROM @QQ;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+合并字段显示：利用group_concat()
+
+SELECT userid,GROUP_CONCAT(`subject`,":",score)AS 成绩 FROM tb_score
+GROUP BY userid；
+
+三大范式只是一般设计数据库的基本理念，可以建立冗余较小、结构合理的数据库。如果有特殊情况，当然要特殊对待，数据库设计最重要的是看需求跟性能，需求>性能>表结构。
+所以不能一味的去追求范式建立数据库。
+https://www.cnblogs.com/jkswjw/p/3180422.html
+第一范式：每一列都是原子的。如用户表中的地址，还可再分成省市县等。
+第二范式：在第一范式的基础上，确保每一列都和主键相关，而不是部分相关（对于联合主键）。如订单号和产品号为联合主键，产品的详细信息只和产品号相关，因此产品详细信息列可拆成
+另外的表。
+第三范式：在第二范式基础上，确保每列都和主键列直接相关,而不是间接相关。如订单号为主键，有联系人一列，则联系人详情信息可单独一张表，联系人一列只存联系人userId即可。
+
+反范式化
+没有冗余的数据库设计可以做到。但是，没有冗余的数据库未必是最好的数据库，有时为了提高运行效率，就必须降低范式标准，适当保留冗余数据。具体做法是：在概念数据模型设计时
+遵守第三范式，降低范式标准的工作放到物理数据模型设计时考虑。降低范式就是增加字段，允许冗余，达到以空间换时间的目的。
+
+*范式化设计和反范式化设计的优缺点*
+范式化
+
+优点：
+1· 可以尽量的减少数据冗余
+2·数据表更新快体积小
+3·范式化的更新操作比反范式化更快
+4·范式化的表通常比反范式化更小
+
+缺点：
+1·对于查询需要对多个表进行关联，导致性能降低
+2·更难进行索引优化
+
+
+mysql通过explain +sql语句实现执行计划。
+type
+依次从好到差：system，const，eq_ref，ref，fulltext，ref_or_null，unique_subquery，index_subquery，
+range，index_merge，index，ALL，除了all之外，其他的type都可以使用到索引，除了index_merge之外，其他的type只可以用到一个索引。
+
+https://blog.csdn.net/lululove19870526/article/details/78065560
+
+一些可以优化sql的方式：https://blog.csdn.net/mzl87/article/details/83550139
+1.用in代替or；from查询时小表在前；少用having，虽然可以减少GROUP BY子句返回的数据，但使用它也是要付出代价的。HAVING子句会让SQL优化器进行额外的工作，也就需要额外的时间。
+2.大多数情况下，（not）in 和（not）exist查询结果相同，一般exist效率高一点。 where id in(select id from ×××)  vs where exist (select id from ××××)
+3.建索引。

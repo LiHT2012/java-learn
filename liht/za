@@ -1,0 +1,516 @@
+https://412887952-qq-com.iteye.com/blog/2315133
+解决406报错，url中包含格式类型，如.gif，返回的并不是图片时，会报错Could not find acceptable representation。
+上述网址中的解决方法已过时，现在的解决方法是springboot的启动类实现WebMvcConfigurer，重写configureContentNegotiation方法，使返回时不对格式进行校验。
+
+@SpringBootApplication
+@MapperScan("com.pim.client.dao.mapper")
+@ServletComponentScan
+public class PIMClientApplication extends SpringBootServletInitializer implements WebMvcConfigurer{
+
+	public static void main(String[] args) {
+		SpringApplication.run(PIMClientApplication.class, args);
+	}
+
+	@Override
+	public void configureContentNegotiation(ContentNegotiationConfigurer configurer) {
+		configurer.favorPathExtension(false);
+	}
+}
+
+
+
+
+
+<select id="generateVersion" parameterType="java.lang.String"
+		resultType="java.lang.Integer">
+		select newVersion(#{dataId,jdbcType=VARCHAR});
+	</select>
+
+/**
+	 * 重定向
+	 */
+	@RequestMapping(value = "/redirect" , method = RequestMethod.GET)
+	public void redirectwechatURL(
+			HttpServletRequest request,
+			HttpServletResponse response) throws IOException {
+		String code = request.getParameter("code");
+		String state = request.getParameter("state");
+		String returnState = state.substring(2, state.length());
+		String url = wechatUserService.getRedirectUrl(state.substring(0, 1));
+		String returnUrl = "";
+		if (returnState.contains("http://")) {
+			returnUrl = returnState.replaceFirst("http://", "");
+		} else {
+			returnUrl = returnState;
+		}
+		url = url + "?code=" + code + "&state=" + returnUrl;
+		logger.info("重定向url : " + url + "环境" + request.getHeader(HttpHeaders.USER_AGENT));
+		response.sendRedirect(url);
+		return;
+	}
+
+
+
+Elasticsearch
+
+Elasticsearch是一个基于Apache Lucene(TM)的开源搜索引擎。无论在开源还是专有领域，Lucene可以被认为是迄今为止最先进、性能最好的、功能最全的搜索引擎库。
+
+Elasticsearch也使用Java开发并使用Lucene作为其核心来实现所有索引和搜索的功能，但是它的目的是通过简单的RESTful API来隐藏Lucene的复杂性，从而让全文搜索变得简单.
+Elasticsearch是面向文档(document oriented)的，这意味着它可以存储整个对象或文档(document)。然而它不仅仅是存储，还会索引(index)每个文档的内容使之可以被搜索。在Elasticsearch中，你可以对文档（而非成行成列的数据）进行索引、搜索、排序、过滤。这种理解数据的方式与以往完全不同，这也是Elasticsearch能够执行复杂的全文搜索的原因之一。
+
+
+安装Elasticsearch
+
+理解Elasticsearch最好的方式是去运行它，让我们开始吧！
+安装Elasticsearch唯一的要求是安装官方新版的Java，地址：www.java.com
+你可以从 elasticsearch.org\/download 下载最新版本的Elasticsearch。
+curl -L -O http://download.elasticsearch.org/PATH/TO/VERSION.zip <1>
+unzip elasticsearch-$VERSION.zip
+cd  elasticsearch-$VERSION
+从 elasticsearch.org\/download 获得最新可用的版本号并填入URL中
+提示：
+
+在生产环境安装时，除了以上方法，你还可以使用Debian或者RPM安装包，地址在这里：downloads page，或者也可以使用官方提供的 Puppet module 或者 Chef cookbook。
+安装Marvel
+
+Marvel是Elasticsearch的管理和监控工具，在开发环境下免费使用。它包含了一个叫做Sense的交互式控制台，使用户方便的通过浏览器直接与Elasticsearch进行交互。
+Elasticsearch线上文档中的很多示例代码都附带一个View in Sense的链接。点击进去，就会在Sense控制台打开相应的实例。安装Marvel不是必须的，但是它可以通过在你本地Elasticsearch集群中运行示例代码而增加与此书的互动性。
+Marvel是一个插件，可在Elasticsearch目录中运行以下命令来下载和安装：
+./bin/plugin -i elasticsearch/marvel/latest
+你可能想要禁用监控，你可以通过以下命令关闭Marvel：
+echo 'marvel.agent.enabled: false' >> ./config/elasticsearch.yml
+运行Elasticsearch
+
+Elasticsearch已经准备就绪，执行以下命令可在前台启动：
+./bin/elasticsearch
+启动后，如果只有本地可以访问，尝试修改配置文件 elasticsearch.yml
+中network.host(注意配置文件格式不是以#开头的要空一格， ：后要空一格) 为network.host: 0.0.0.0
+如果想在后台以守护进程模式运行，添加-d参数。
+打开另一个终端进行测试：
+curl 'http://localhost:9200/?pretty'
+你能看到以下返回信息：
+{
+   "status": 200,
+   "name": "Shrunken Bones",
+   "version": {
+      "number": "1.4.0",
+      "lucene_version": "4.10"
+   },
+   "tagline": "You Know, for Search"
+}
+这说明你的ELasticsearch集群已经启动并且正常运行，接下来我们可以开始各种实验了。
+集群和节点
+
+节点(node)是一个运行着的Elasticsearch实例。集群(cluster)是一组具有相同cluster.name的节点集合，他们协同工作，共享数据并提供故障转移和扩展功能，当然一个节点也可以组成一个集群。
+你最好找一个合适的名字来替代cluster.name的默认值，比如你自己的名字，这样可以防止一个新启动的节点加入到相同网络中的另一个同名的集群中。
+你可以通过修改config/目录下的elasticsearch.yml文件，然后重启ELasticsearch来做到这一点。当Elasticsearch在前台运行，可以使用Ctrl-C快捷键终止，或者你可以调用shutdown API来关闭：
+curl -XPOST 'http://localhost:9200/_shutdown'
+查看Marvel和Sense
+
+如果你安装了Marvel（作为管理和监控的工具），就可以在浏览器里通过以下地址访问它：
+http:\/\/localhost:9200\/_plugin\/marvel\/
+你可以在Marvel中通过点击dashboards，在下拉菜单中访问Sense开发者控制台，或者直接访问以下地址：
+http:\/\/localhost:9200\/_plugin\/marvel\/sense\/
+
+
+
+安装Head  插件
+
+Elasticsearch Head Plugin: 对ES进行各种操作，如查询、删除、浏览索引等。
+
+由于head插件本质上还是一个nodejs的工程，因此需要安装node，使用npm来安装依赖的包。（npm可以理解为maven）
+
+cd elasticsearch-5.6.1
+# elasticSearch 服务
+bin/elasticsearch
+#启动插件
+cd elasticsearch-head-master
+npm run start
+
+
+配置elesticsearch
+http://blog.csdn.net/sinat_28224453/article/details/51134978
+
+elesticSearch配置文件分析
+
+elasticsearch/elasticsearch.yml   主配置文件
+elasticsearch/jvm.options         jvm参数配置文件
+elasticsearch/log4j2.properties   日志配置文件
+
+https://www.cnblogs.com/xiaochina/p/6855591.html
+
+
+logstash
+
+https://www.cnblogs.com/moonlightL/p/7760512.html
+
+踩坑提醒：
+file 输入插件默认使用 “\n” 判断日志中每行的边界位置。error.log 是笔者自己编辑的错误日志，之前由于在复制粘贴日志内容时，忘记在内容末尾换行，导致日志数据始终无法导入到 Elasticsearch 中。
+
+logstash实现分布式日志收集
+http://blog.csdn.net/u013036068/article/details/52859434
+
+
+/////
+将日志通过logstash写入redis，再从redis经logstash写入一个文件
+
+设置为写入redis:
+
+
+shipper.conf:
+
+input {
+file
+{
+path
+=> [
+#
+这里填写需要监控的文件
+
+"/home/appuser/backlogs/wechat_service/wechat.service.2016-08-26.log",
+
+"/data/logs/wechat_service/access.log"
+
+]
+
+}
+
+}
+
+output {
+#
+输出到redis
+
+redis {
+host
+=> "192.169.1.10" # redis主机地址
+port
+=> 14001 # redis端口号
+db
+=> 8 # redis数据库编号
+
+data_type => "channel" # 使用发布/订阅模式
+key
+=> "logstash_list_0" # 发布通道名称
+
+}
+
+}
+
+
+
+filter {
+
+mutate {
+#
+替换元数据host的值
+
+replace => ["host", "192.169.1.10 B[1]"]
+
+}
+
+}
+
+
+logstash按配置频次向elasticsearch发送日志信息
+output {
+    elasticsearch {
+        hosts => ["192.168.0.2:9200"]
+        index => "logstash-%{type}-%{+YYYY.MM.dd}"
+        document_type => "%{type}"
+        flush_size => 20000
+        idle_flush_time => 10
+        sniffing => true
+        template_overwrite => true
+    }
+}
+在过去的版本中，主要由本插件的 flush_size 和 idle_flush_time 两个参数共同控制 Logstash 向 Elasticsearch 发送批量数据的行为。以上面示例来说：Logstash 会努力攒到 20000 条数据一次性发送出去，但是如果 10 秒钟内也没攒够 20000 条，Logstash 还是会以当前攒到的数据量发一次。
+
+默认情况下，flush_size 是 500 条，idle_flush_time 是 1 秒。这也是很多人改大了 flush_size 也没能提高写入 ES 性能的原因——Logstash 还是 1 秒钟发送一次。
+
+FileWatch 只支持文件的绝对路径，而且会不自动递归目录。所以有需要的话，请用数组方式都写明具体哪些文件。
+
+LogStash::Inputs::File 只是在进程运行的注册阶段初始化一个 FileWatch 对象。所以它不能支持类似 fluentd 那样的 path => "/path/to/%{+yyyy/MM/dd/hh}.log" 写法。达到相同目的，你只能写成 path => "/path/to/*/*/*/*.log"。FileWatch 模块提供了一个稍微简单一点的写法：/path/to/**/*.log，用 ** 来缩写表示递归全部子目录。
+
+
+从 5.0 开始，这个行为有了另一个前提：flush_size 的大小不能超过 Logstash 运行时的命令行参数设置的 batch_size，否则将以 batch_size 为批量发送的大小
+
+
+在单个 input/file 中监听的文件数量太多的话，每次启动扫描构建监听队列会消耗较多的时间。给使用者的感觉好像读取不到一样，这是正常现象。
+
+start_position 仅在该文件从未被监听过的时候起作用。如果 sincedb 文件中已经有这个文件的 inode 记录了，那么 logstash 依然会从记录过的 pos 开始读取数据。所以重复测试的时候每回需要删除 sincedb 文件(官方博客上提供了另一个巧妙的思路：将 sincedb_path 定义为 /dev/null，则每次重启自动从头开始读)。
+
+因为 windows 平台上没有 inode 的概念，Logstash 某些版本在 windows 平台上监听文件不是很靠谱。windows 平台上，推荐考虑使用 nxlog 作为收集端
+
+
+
+<dependency>
+        <groupId>javax</groupId>
+    <artifactId>javaee-api</artifactId>
+    <version>6.0</version>
+    </dependency>
+
+解决：javaee-api会引入javax-servlet-api，与服务器中的tomcat的jar包重复，就会不引用。
+
+所以将pom中的dependency删除。在Build Path中添加MyEclipse Libraries--> Java EE 5 Libraries。
+http://my.oschina.net/u/249914/blog/87369
+
+
+
+
+1.热加载：在server.xml -> context 属性中 设置 reloadable="true"
+<Context docBase="xxx" path="/xxx" reloadable="true"/> 
+
+2. 热部署：在server.xml -> context 属性中 设置  autoDeploy="true"
+<Context docBase="xxx" path="/xxx" autoDeploy="true"/>
+
+热加载：服务器会监听 class 文件改变，包括web-inf/class,wen-inf/lib,web-inf/web.xml等文件，若发生更改，则局部进行加载，不清空session ，不释放内存。开发中用的多，但是要考虑内存溢出的情况。
+
+热部署： 整个项目从新部署，包括你从新打上.war 文件。 会清空session ，释放内存。项目打包的时候用的多。
+
+SEVERE: The web application [] appears to have started a thread named [java-sdk-http-connection-reaper] but has failed to stop it. This is very likely to create a memory leak.
+
+
+
+linux .sh脚本书写
+http://blog.sina.com.cn/s/blog_54f82cc201010hfz.html
+
+
+将本地项目上传到gitHub
+http://blog.csdn.net/zamamiro/article/details/70172900
+
+private static char[] charSet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz".toCharArray();
+
+	/**
+	 * 将10进制转化为62进制
+	 * 
+	 * @param number
+	 * @param length
+	 *            转化成的62进制长度，不足length长度的话高位补0，否则不改变什么
+	 * @return
+	 */
+	public static String trance_10_to_62(long number, int length) {
+		Long rest = number;
+		Stack<Character> stack = new Stack<Character>();
+		StringBuilder result = new StringBuilder(0);
+		while (rest != 0) {
+			stack.add(charSet[new Long((rest - (rest / 62) * 62)).intValue()]);
+			rest = rest / 62;
+		}
+		for (; !stack.isEmpty();) {
+			result.append(stack.pop());
+		}
+		int result_length = result.length();
+		StringBuilder temp0 = new StringBuilder();
+		for (int i = 0; i < length - result_length; i++) {
+			temp0.append('0');
+		}
+		return temp0.toString() + result.toString();
+	}
+	
+	/**
+	 * 将62进制转换成10进制数
+	 * 
+	 * @param ident62
+	 * @return
+	 */
+	public static Integer trance_62_to_10( String ident62 ) {
+		Integer decimal = 0;
+		int base = 62;
+		int keisu = 0;
+		int cnt = 0;
+
+		byte ident[] = ident62.getBytes();
+		for ( int i = ident.length - 1; i >= 0; i-- ) {
+			int num = 0;
+			if ( ident[i] > 48 && ident[i] <= 57 ) {
+				num = ident[i] - 48;
+			}
+			else if ( ident[i] >= 65 && ident[i] <= 90 ) {
+				num = ident[i] - 65 + 10;
+			}
+			else if ( ident[i] >= 97 && ident[i] <= 122 ) {
+				num = ident[i] - 97 + 10 + 26;
+			}
+			keisu = (int) java.lang.Math.pow( (double) base, (double) cnt );
+			decimal += num * keisu;
+			cnt++;
+		}
+		return decimal;
+	}
+package com.dbcool.api.util;
+
+public class UrlMapUtil {
+
+	public static Integer SHORT_URL_LENGTH = 11;
+	private final static char[] digits = { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O',
+			'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j',
+			'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3', '4',
+			'5', '6', '7', '5', '9', '+', '/'};
+
+	/**
+	 * 把10进制的数字转换成64进制
+	 * 
+	 * @param number
+	 * @param shift
+	 * @return
+	 */
+	public static String trance_10_to_64(long number) {
+		char[] res = "00000000000".toCharArray();
+		char[] buf = new char[64];
+		int charPos = 11;
+		int radix = 1 << 6;
+		long mask = radix - 1;
+		do {
+//			buf[--charPos] = digits[(int) (number & mask)];
+			res[--charPos] = digits[(int) (number & mask)];
+			number >>>= 6;
+		} while (number != 0);
+		System.out.println(new String(res));
+		return new String(buf, charPos, (11 - charPos));
+	}
+
+	/**
+	 * 把64进制的字符串转换成10进制
+	 * 
+	 * @param decompStr
+	 * @return
+	 */
+	public static long trance_64_to_10(String decompStr) {
+		long result = 0;
+		for (int i = decompStr.length() - 1; i >= 0; i--) {
+			for (int j = 0; j < digits.length; j++) {
+				if (decompStr.charAt(i) == digits[j]) {
+					result += ((long) j) << 6 * (decompStr.length() - 1 - i);
+				}
+			}
+		}
+		return result;
+	}
+	public static void main(String[] args) {
+		System.out.println(trance_10_to_64(100L));
+	}
+}
+
+
+
+varchar(6000)是可以存储6000个字节，如果字符集采用UTF-8的话，由于UTF-8是一种“可变长编码”，英文字母被编成一个字节，汉字通常是3个字节，只有极其生僻的字才会被编码成4-6个字节。
+因此可认为编码是UTF-8时varchar(6000)里可以存储2000个汉字
+vs
+varchar和char的长度并不是指字节长度，而是当前字符集下，最多多少个字符，比如，varchar 100,存ascii字符，最多存储100个，存中文也是最多存100个，而不是33个。
+
+--- GBK 编码下-----  
+  
+--无论中文字符还是西文字符，都是等同对待，所以总字符数2  
+select char_length('中国');  
+  
+-- 1个中文字符占2个字节，所以总字节长度4  
+select length('中国');   
+  
+-- 1个英文字符占1个字节，所以总字节长度5  
+select length('china');   
+  
+-- 1个中文字符占2个字节，1个字节占8位，所以总bit比特长度32  
+select bit_length('中国');   
+  
+  
+---- UTF-8 编码下-----  
+  
+--无论中文字符还是西文字符，都是等同对待，所以总字符数2  
+select char_length('中国');  
+  
+-- 1个中文字符占3个字节，所以总字节长度6  
+select length('中国');   
+  
+-- 1个英文字符占1个字节，所以总字节长度5  
+select length('china');   
+  
+-- 1个中文字符占3个字节，1个字节占8位，所以总bit比特长度48  
+select bit_length('中国');   
+
+public void getAddressDirSolrDbcBeanList() {
+     
+     BufferedReader br = null;
+     String line;
+     int i = 0;
+     try {
+         File file = new File("/home/wxy/addressName.txt");
+         br = new BufferedReader(new FileReader(file));
+         line = null;
+         
+         
+         if (i != 0) {
+             for (int j = 0; j < i; j++) {
+                 br.readLine();
+             }
+         }
+     } catch (FileNotFoundException e2) {
+         // TODO Auto-generated catch block
+         e2.printStackTrace();
+     } catch (IOException e2) {
+         // TODO Auto-generated catch block
+         e2.printStackTrace();
+     }
+     
+     File outputFile = new File("/home/wxy/addressSolrDbc.json");
+     if(!outputFile.exists())   
+     {   
+         try {   
+             outputFile.createNewFile();   
+         } catch (IOException e) {   
+             e.printStackTrace();   
+         }   
+     }
+     FileOutputStream outStr = null;
+     BufferedOutputStream outputBuffer = null;
+     try {
+         outStr = new FileOutputStream(outputFile);
+         outputBuffer = new BufferedOutputStream(outStr);
+     } catch (FileNotFoundException e1) {
+     }
+     
+     String dirId = null;
+     String dirName = null;
+     Map<String, Object> dbcCoreIndex = new HashMap<>();
+     String[] nameArray = new String[1];
+     String[] ownerGroupArray = new String[]{manageSpace.getSpaceGroupId()};
+//        String[] ownerUserArray = new String[]{"57aec8cc771e622a002ed6b9"};
+     int count = 0;
+     int temp = 10000;
+     try {
+         while ((line = br.readLine()) != null) {
+             i++;
+             String[] addArray = line.split(",");
+             
+             dirId = addArray[0];
+             dirName = addArray[2];
+
+             dbcCoreIndex.put("id", dirId);
+             nameArray[0] = dirName;
+             dbcCoreIndex.put("resName", nameArray);
+             dbcCoreIndex.put("resType", DDB_TB_DIR);
+             dbcCoreIndex.put("ownerUlist", ownerGroupArray);
+//                dbcCoreIndex.put("ownerUser", ownerUserArray);
+             outputBuffer.write(JsonUtil.obj2Json(dbcCoreIndex).getBytes());
+             outputBuffer.write(10);
+             count ++;
+             if (count == temp || i == 714809) {
+                 count = 0;
+                 System.out.println(i);
+                 outputBuffer.flush();
+             }
+         }
+     } catch (IOException e1) {
+         // TODO Auto-generated catch block
+         e1.printStackTrace();
+     }
+    
+     try {
+         br.close();
+         outputBuffer.close();
+         outStr.close();
+     } catch (IOException e) {
+         e.printStackTrace();
+     }
+ }
+}

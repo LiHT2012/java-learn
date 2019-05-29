@@ -1,3 +1,13 @@
+innodb的自增主键的计数是保存在内存中，myiasm则是保存于硬盘中。
+验证，两个表分别是innodb,myiasm.innodb最后一条数据是7，删除后最后一条id是6.重启mysql之后再新增的id会是7.
+myiasm最后一条是8，删除后最后一条id是6.重启后再新增还是9.
+按照正常的思路，不重启mysql的话，新一行数据 innodb的id应该是8，而myisam依然是9，可以看到innodb的id计数重新算了。所以得证。
+
+给已有的表添加一列：
+ALTER TABLE `pim`.`quotation`
+ADD COLUMN `manual_id` VARCHAR(25) NOT NULL AFTER `org_index`;
+
+
 Mysql目前主要有以下几种索引类型：FULLTEXT，HASH，BTREE，RTREE。
 
 1. FULLTEXT
@@ -140,5 +150,39 @@ https://www.cnblogs.com/younggun/articles/1719943.html
    即违背事务隔离性要求。
   为解决这个问题，出现了谓词锁（predict lock）。
    next-key locking算法就是为了解决幻读问题。
+
+}
+
+java中显示正常mybatis插入mysql中显示乱码:
+{
+  需要在mybatis的配置文件中设置， 之前我的连接字段是：
+
+  复制代码
+    <!-- 1. 数据源 : DriverManagerDataSource -->
+    <bean id="datasource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+        <property name="url" value="jdbc:mysql://127.0.0.1:3306/uct"/>
+        <property name="username" value="root"/>
+        <property name="password" value=""/>
+    </bean>
+
+  复制代码
+  修改后为：
+
+  复制代码
+    <!-- 1. 数据源 : DriverManagerDataSource -->
+    <bean id="datasource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+        <property name="url" value="jdbc:mysql://127.0.0.1:3306/uct?useUnicode=true&amp;characterEncoding=utf-8"/>
+        <property name="username" value="root"/>
+        <property name="password" value=""/>
+    </bean>
+
+  复制代码
+  可以看到在连接的url后添加了useUnicode和characterEncoding的值，设定为utf-8.
+
+  这里有一点需要注意的是，在xml配置文件中，需要将'&'符号转义，所以这里要写成'&amp;'。
+
+  如果是在配置文件中，则无法转义，应为： xxxx.jdbc.url=jdbc:mysql://127.0.0.1:8080:3306/uct?useUnicode=true&characterEncoding=UTF-8
 
 }

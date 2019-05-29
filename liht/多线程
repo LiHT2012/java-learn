@@ -1,0 +1,5 @@
+多线程：
+1、extends Thread
+
+
+2、implements Runnable

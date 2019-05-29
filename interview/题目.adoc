@@ -10,7 +10,8 @@ public static void main(String[] args) {
 /**
   void java.lang.System.exit(int status)
 
-  Terminates the currently running Java Virtual Machine. The argument serves as a status code; by convention, a nonzero status code indicates abnormal termination.
+  Terminates the currently running Java Virtual Machine. The argument serves as a status code; by convention, a nonzero status code indicates
+	abnormal termination.
 
   This method calls the exit method in class Runtime. This method never returns normally.
 
@@ -55,3 +56,127 @@ https://blog.csdn.net/runninglion/article/details/9012671
 
 民生直销银行系统需要接受第三方商户系统的批量资金转入文件，入库调用后台核心系统记账。请设计并实现该功能，请描述设计主要关注的问题。批量文本每个客户一行，
 单行格式为“流水号，客户号，转入账号，转出账号，交易金额”，使用逗号分隔，请写出读取病解析文本文件的代码片段。
+
+进程和线程的区别和联系；
+equals和==的区别；
+Java会存在内存泄露吗？
+生产者消费者；
+单例模式
+
+两个有序数组的交集的java实现
+https://blog.csdn.net/qq_41900081/article/details/86531432
+
+{
+	1，无论如何，Integer与new Integer不会相等。不会经历拆箱过程，new出来的对象存放在堆，而非new的Integer常量则在常量池（在方法区），他们的内存地址不一样，所以为false。
+
+	2，两个都是非new出来的Integer，如果数在-128到127之间，则是true,否则为false。因为java在编译Integer i2 = 128的时候,被翻译成：
+	Integer i2 = Integer.valueOf(128);而valueOf()函数会对-128到127之间的数进行缓存。
+
+	3，两个都是new出来的,都为false。还是内存地址不一样。
+
+	4，int和Integer(无论new否)比，都为true，因为会把Integer自动拆箱为int再去比。
+}
+
+2. 简述数据库的存储过程及其优点。
+
+
+3. static全局变量与普通的全局变量有什么区别？static局部变量和普通的区别？static函数和普通函数的区别？
+
+1 请编码实现memcpy函数：void *memcpy（void *dst,const void *src,unsigned int len)
+
+
+2 整数矩阵A[N][N],N<10000,满足如下条件：
+当 j < k 时，有：
+A[i][j] < A[i][k] 且 A[j][i] < A[k][i]
+输入整数M,输出M在矩阵中的位置<i,j>，如果未找到，则输出NULL，要求尽可能的高效。
+
+
+依序遍历0到100闭区间内所有的正整数，如果该数字能被3整除，则输出该数字及‘*’标记；如果该数字能被5整除，则输出该数字及‘#’标记；如果该数字既能被3整除又能被5整除，
+则输出该数字及‘*#’标记.
+
+URL-->TinyUrl:
+https://www.nowcoder.com/questionTerminal/0538a468eb214eb89c2791bf1b4f6364?orderByHotValue=0&pos=3&mutiTagIds=639
+
+0.6332 的数据类型是（）
+A. float
+B. double
+C. Float
+D. Double
+
+答案：B
+
+解析：默认为 double 型，如果为 float 型需要加上f显示说明，即 0.6332f
+
+ArrayList list = new ArrayList(20);中的list扩充几次?
+https://blog.csdn.net/u014236541/article/details/51211644
+
+关系数据库管理系统应能实现的专门关系运算包括( )。
+A) 选择、投影、连接
+B) 分组、索引、排序
+C) 删除、更新、追加
+D) 显示、打印、制表
+正确答案
+A
+答案解析
+[解析] 本题考查关系运算的知识。关系运算共可分为两大类，一类是传统的集合运算，如并、交、差和笛卡儿积；还有一类是专门的关系运算，其中包括选择、投影、连接和自然连接。
+选择运算是在关系中选择满足条件的元组：投影运算是在关系中指定某些属性所组成新的关系；
+连接运算是将两个关系拼接成一个新的关系，生成的新关系中包含满足条件的元组：自然连接是在等值连接的基础上去除重复的属性。
+本题明显属于关系中选择满足条件的元组，所以为选择操作。关系运算的特点是运算的对象都是表
+
+Java Exception:
+https://www.cnblogs.com/hysum/p/7112011.html
+
+1. 说说 & 和 && 的区别。
+& 和 && 都可以用作逻辑与的运算符，表示逻辑与（and），当运算符两边的表达式的结果都为 true 时，整个运算结果才为 true，否则，只要有一方为 false，则结果为 false。
+
+&& 还具有短路的功能，即如果第一个表达式为 false，则不再计算第二个表达式，例如，对于 if(str != null&& !str.equals(“”)) 表达式，当 str 为 null 时，后面的表达式不会
+执行，所以不会出现 NullPointerException 如果将 && 改为 & ，则会抛出NullPointerException 异常。If(x==33 & ++y>0) y 会增长， If(x==33 && ++y>0) 不会增长。
+
+& 还可以用作位运算符，当 & 操作符两边的表达式不是 boolean 类型时，& 表示按位与操作，我们通常使用 0x0f 来与一个整数进行 & 运算，来获取该整数的最低 4 个 bit 位，
+例如，0x31 & 0x0f 的结果为 0x01。
+
+备注：这道题先说两者的共同点，再说出 && 和 & 的特殊之处，并列举一些经典的例子来表明自己理解透彻深入、实际经验丰富。
+
+2. 用最有效率的方法算出 2 乘以 8 等於几?
+2 << 3，因为将一个数左移 n 位，就相当于乘以了 2 的 n 次方，那么，一个数乘以 8 只要将其左移 3 位即可，而位运算 cpu 直接支持的，效率最高，所以，2 乘以 8 等於几的
+最效率的方法是 2 << 3 。
+
+3. 存在使 i + 1 < i的数吗?
+答案：存在
+
+解析：如果 i 为 int 型，那么当 i 为 int 能表示的最大整数时，i+1 就溢出变成负数了，此时不就 <i 了吗。
+
+扩展：存在使 i > j || i <= j 不成立的数吗?
+
+答案：存在
+
+解析：比如 Double.NaN 或 Float.NaN 。
+
+7. float f=3.4;是否正确?
+答:不正确。3.4 是双精度数，将双精度型（double）赋值给浮点型（float）属于下转型（down-casting，也称为窄化）会造成精度损失，因此需要强制类型转换float f =(float)3.4;
+或者写成 float f =3.4F;。
+
+8. int 和 Integer 有什么区别?
+答：Java 是一个近乎纯洁的面向对象编程语言，但是为了编程的方便还是引入不是对象的基本数据类型，但是为了能够将这些基本数据类型当成对象操作，Java 为每一个基本数据类型都引入了
+对应的包装类型（wrapper class），int 的包装类就是 Integer，从 JDK 1.5 开始引入了自动装箱/拆箱机制，使得二者可以相互转换。
+
+9. char 型变量中能不能存贮一个中文汉字?为什么?
+答：char 类型可以存储一个中文汉字，因为 Java 中使用的编码是 Unicode（不选择任何特定的编码，直接使用字符在字符集中的编号，这是统一的唯一方法），一个 char 类型占
+2 个字节（16bit），所以放一个中文是没问题的。
+
+补充：使用 Unicode 意味着字符在 JVM 内部和外部有不同的表现形式，在 JVM 内部都是 Unicode，当这个字符被从 JVM 内部转移到外部时（例如存入文件系统中），需要进行编码转换。
+所以 Java 中有字节流和字符流，以及在字符流和字节流之间进行转换的转换流，如 InputStreamReader 和 OutputStreamReader，这两个类是字节流和字符流之间的适配器类，
+承担了编码转换的任务；对于 C 程序员来说，要完成这样的编码转换恐怕要依赖于union（联合体/共用体）共享内存的特征来实现了。
+
+10. Math.round(11.5) 等于多少? Math.round(-11.5)等于多少?
+答：Math.round(11.5)==12  Math.round(-11.5)==-11  round 方法返回与参数 最接近的长整数，参数加 1/2 后求其 floor
+
+
+
+折半查找最坏的情况下，查找长度为logn，二分查找树最坏的情况为n，其他的查找算法也是n。所以折半查找是最有效的查找算法。
+二叉排序树平均时间复杂度是O(log(2n))，最坏退化成线性O(n).
+
+0~999999之间的所有数字中，任何一位都不包括数字3的数字的总数为____。
+{
+	没有3的情况和没有9的情况是一个概念，所以我们可以把所有的有9的数字都删除掉，那么就原来的6位十进制变成了6位9进制数，所以结果是9^6=531441
+}

@@ -1,0 +1,452 @@
+SELECT * FROM dbcool.dbc_total_statistics;
+
+select a.second_ID resid,s.res_type,s.hour_pv,s.sum_pv,s.init_time from (select * from dbcool.two_dimension where type=221900) a 
+left join 
+(select * from dbcool.dbc_total_statistics where DATE_FORMAT(init_time,'%Y-%m-%d %H:%i:%s')>= '2018-02-23 17:35:11' 
+and DATE_FORMAT(init_time,'%Y-%m-%d %H:%i:%s')<= '2018-02-23 17:35:15') s 
+on s.res_id= a.second_ID;
+
+select res_id,sum(sum_pv) from dbcool.dbc_total_statistics where DATE_FORMAT(init_time,'%Y-%m-%d %H:%i:%s')>= '2018-02-23 17:35:11' 
+and DATE_FORMAT(init_time,'%Y-%m-%d %H:%i:%s')<= '2018-02-23 17:35:15' group by res_id;
+
+
+#where DATE_FORMAT(init_time,'%Y-%m-%d %H:%i:%s')>= '2018-02-23 17:35:11' and DATE_FORMAT(init_time,'%Y-%m-%d %H:%i:%s')<= '2018-02-23 17:35:15' 
+#total表的pv排序
+select a.second_ID resid,ifnull(s.sum,0) sumpv from (select * from dbcool.two_dimension where type in (221900)) a 
+left join 
+(select res_id sid,sum(sum_pv) sum from dbcool.dbc_total_statistics where DATE_FORMAT(init_time,'%Y-%m-%d %H:%i:%s')>= '2018-02-28 00:00:00'
+and DATE_FORMAT(init_time,'%Y-%m-%d %H:%i:%s')<= '2018-02-28 00:00:00' group by res_id) s 
+on s.sid= a.second_ID order by sumpv desc limit 0,30;
+
+#delete from two_dimension where first_ID in (select second_ID dirid from (select * from two_dimension) a where first_ID="573bf1fa30da2f8500f5aad1" and type  in (191300,191301)) 
+ #or second_ID in (select second_ID dirid from (select * from two_dimension) b where first_ID="573bf1fa30da2f8500f5aad1" and type  in (191300,191301));
+
+
+
+
+select datediff(time,'2017-07-05','2017-07-20') from dbcool.two_dimension;
+
+SELECT DATEDIFF('2008-12-30','2008-12-29') AS DiffDate;
+
+SELECT DATEDIFF('2018-02-28 00:00:00','2018-02-26 10:00:00');
+
+
+SELECT * FROM pim.organization where company_id='5b4f0565a18aaade002bff94';
+select ifnull(max(org_index),0)  from organization where company_id='5b4f0565a18aaade002bff94';
+select nextOrgIndex('1111');
+
+SELECT  p.* FROM organization p, organization c WHERE c.org_index = 1 AND p.left_num BETWEEN c.left_num AND c.right_num ;
+
+select p.*,c.name FROM organization p join organization c on p.superior_index=c.org_index WHERE c.org_index = 1 AND p.left_num BETWEEN c.left_num AND c.right_num;
+
+select deleteOneOrg('5b4f0565a18aaade002bff94',9);
+select modifyPosition('5b4f0565a18aaade002bff94',5,1);
+select * from table_tmp;
+DROP temporary TABLE IF EXISTS `table_tmp`;
+
+set offsetNum = 12 - 2*2 + 1 -old_left;
+update organization a inner join (select * from table_tmp) b 
+       on a.org_index = b.org_index 
+       set a.left_num = b.left_num,a.right_num=b.right_num
+       where a.company_id=companyId; 
+
+select count(*) from organization p, organization c
+		where c.company_id = '5b4f0565a18aaade002bff94' and c.org_index = 0
+		and p.company_id = c.company_id
+		and p.left_num > c.left_num 
+		and p.right_num < c.right_num;
+
+SELECT * FROM pim.user;
+select u.phone,u.name userName,r.company, r.org_index,
+        r.role_set,org.name orgName 
+        from user u, org_user_role r, organization org
+        where r.company='5b4f0565a18aaade002bff94' and r.company=org.company_id 
+        and r.user_id='13520427024' and r.user_id=u.phone
+        and r.org_index in 
+        (select p.org_index from organization c, organization p
+            where c.company_id = '5b4f0565a18aaade002bff94' and c.org_index = 5
+            and p.company_id = c.company_id
+            and p.left_num between c.left_num and c.right_num) 
+        and r.org_index=org.org_index;
+
+
+
+SELECT * FROM pim.org_user_role;
+select * from pim.latest_org;
+
+
+#5b4f0565a18aaade002bff94
+
+
+
+select org_index orgIndex,count(user_id) num 
+	   from org_user_role 
+	   where company='5b4f0565a18aaade002bff94' and org_index in (0,1) group by org_index;
+       
+select u.phone,u.name userName,r.company companyId, r.org_index, r.role_set,org.name orgName from user u, org_user_role r, organization org
+    where r.company='5b4f0565a18aaade002bff94'
+        #and org_index=1
+        and r.org_index in 
+            (select p.org_index
+		        from organization c, organization p
+		        where
+		        c.company_id = '5b4f0565a18aaade002bff94' and c.org_index = 0 and
+		        p.company_id = c.company_id
+		        and p.left_num between c.left_num and c.right_num)
+        
+        and r.role_set like 'admin%' and u.phone=r.user_id and u.name like '李会婷' and org.company_id = r.company and org.org_index = r.org_index;
+        
+select * from org_user_role where user_id='13520427024' and role_set >= 'admin' and role_set < 'admio';
+select * from org_user_role where user_id='13520427024' and role_set like 'admin%';
+
+
+
+update org_user_role set role_set = 
+case when org_index=1 then 'sales,editor'
+when org_index=0 then ''
+end
+where id in (2);
+
+
+update org_user_role set role_set = case when 1 then 'editor' when 0 then 'admin' end where company='5b4f0565a18aaade002bff94' and user_id='13520427024' and org_index in ( 1 , 0 ) ;
+
+ select distinct user_id from org_user_role where company='5b4f0565a18aaade002bff94';
+
+select count(distinct user_id) from org_user_role where company='5b4f0565a18aaade002bff94';
+
+
+update org_user_role set org_index=2, role_set='admin,sales' where id = 32;
+
+
+
+SELECT * FROM pim.manual_index;
+#查看核心产品手册列表
+select i.manual_id,i.create_time, i.last_update_time,info.data from pim.manual_index i, pim.manual_info info 
+where i.company_id='1111' and i.org_index=0 and i.manual_id=info.id;
+
+select create_time, last_update_time,manual_id,info.data from pim.manual_index i 
+left join pim.manual_info info on info.id=i.manual_id
+where company_id='1111' and org_index=0 ;
+#带分发数目的查看手册列表
+select i.manual_id,i.create_time, i.last_update_time,info.name,
+(select count(org_index) from pim.manual_index where company_id='1111' and org_index>=0) num#分发数量，一起查好吗？
+from pim.manual_index i, pim.manual_info info 
+where i.company_id='1111' and i.org_index=-1 and i.manual_id=info.id;
+
+#批量查手册下的产品数
+select manual_id,count(1) from pim.manual_product 
+where org_index=-1 and manual_id in (select manual_id from pim.manual_index where company_id='1111' and org_index=-1) group by manual_id;
+
+select mp.manual_id,count(1) from pim.manual_product mp, pim.manual_index i 
+where i.company_id='1111' and i.org_index=-1 and i.org_index=mp.org_index and i.manual_id=mp.manual_id group by mp.manual_id;
+
+select i.*,config,data from pim.manual_index i join pim.manual_info info on i.manual_id=info.id join pim.manual_cfg cfg on i.config_id=cfg.id where i.manual_id='1111' and i.org_index=0;
+
+select i.*,cfg.config,info.data from pim.manual_index i,pim.manual_cfg cfg,pim.manual_info info where i.manual_id=info.id and i.config_id=cfg.id and i.manual_id='1111' and i.org_index=0;
+
+
+SELECT 
+    a.*,
+    b.data,
+    ifnull(COUNT(c.id),0) AS subCount,
+    ifnull(COUNT(d.id),0) AS subCount2
+FROM
+    (SELECT 
+        manual_id, config_id, view_id, create_time, last_update_time
+    FROM
+        pim.manual_index
+    WHERE
+        company_id = '1111' AND org_index = -1) AS a,
+    pim.manual_info b,
+    pim.manual_product c,
+    pim.manual_index d
+WHERE
+    b.id = a.manual_id
+        AND c.manual_id = a.manual_id
+        AND c.org_index = -1
+        AND d.manual_id = a.manual_id
+        AND d.org_index >=0;
+
+
+
+SELECT * FROM pim.manual_info;
+SELECT * FROM pim.manual_form;
+select * from pim.manual_product;
+select * from dir_product;
+select * from dir_index;
+
+select pi.*, p.data,u.name,count(distinct CASE
+            WHEN pi.status in (0,1,2,3) THEN pi.product_id
+        END) num from (select product_id,org_index from pim.manual_product where manual_id='1111' and org_index=0) mp
+left join pim.product_index pi on mp.product_id = pi.product_id and mp.org_index=pi.org_index
+left join pim.product p on pi.data_id = p.id 
+left join pim.user u on u.phone=pi.last_update_phone 
+;
+
+select pi.*, p.data,u.name from pim.manual_product mp
+left join pim.product_index pi on mp.product_id = pi.product_id and mp.org_index=pi.org_index
+left join pim.product p on pi.data_id = p.id 
+left join pim.user u on u.phone=pi.last_update_phone 
+where mp.manual_id='1111' and mp.org_index=0;
+
+select count(*) from manual_product mp 
+where mp.manual_id='1111' and mp.org_index=1;
+
+
+SELECT * FROM pim.product_index where product_id='5b890d424be8000b00428398';#5b890d424be8000b00428398,5b890cde4be8000b00428397,5b85095c41734dbe00910666_0000
+select * from pim.manual_dir where manual_id='5b89027b4be8000b00428396';
+select * from pim.product;
+select * from pim.dir_dir where dir_id in ('5b8918de4be8000b00428399','5b891a464be8000b0042839a');
+select * from pim.dir_index where dir_id in ('5b8918de4be8000b00428399','5b891a464be8000b0042839a','5b9247fbbc69c5f5008ffe80','5b924806bc69c5f5008ffe81');
+select * from pim.manual_product where manual_id='5b89027b4be8000b00428396';
+select * from manual_index where manual_id='5b89027b4be8000b00428396';
+select * from manual_dir where manual_id='5b89027b4be8000b00428396';#5b8918de4be8000b00428399,5b891a464be8000b0042839a,5b891a794be8000b0042839b
+
+select p.*, pi.create_time, pi.last_update_time, pi.last_update_phone, pi.status,u.name 
+    from pim.product p
+    left join pim.product_index pi on pi.product_id=p.id and pi.org_index=0
+    left join pim.user u on u.phone=pi.last_update_phone 
+    where p.id='2222';
+    
+select di.*, din.create_time, count(a.sub_dir) num from 
+(select dir_id, sub_dir from dir_dir where dir_id = '1234') dd  
+left join dir_index din on din.dir_id = dd.sub_dir 
+left join dir_info di on di.id = din.data_id 
+left join dir_dir a on a.dir_id=dd.sub_dir 
+#left join user u on din.last_update_phone=u.phone 
+where din.org_index=0 group by dd.sub_dir;
+
+
+select p.*, pi.product_id, pi.create_time, pi.last_update_time, pi.last_update_phone,
+pi.status,u.name
+from product_index pi
+left join product p on p.id=pi.data_id 
+left join user u on u.phone=pi.last_update_phone
+where pi.product_id='5b7e144752f1980b004e7b7b' and
+pi.org_index=0;
+
+SELECT * FROM pim.dir_info;
+select * from dir_index;
+
+select di.*, din.dir_id, din.status, din.create_time, din.last_update_time, din.last_update_phone, u.name, count(a.sub_dir) sonNum 
+from (select manual_id, dir_id from manual_dir where manual_id = '5b73d82a353ecd4b003cb894' and type=0) md 
+left join dir_index din on din.dir_id = md.dir_id 
+left join dir_info di on di.id = din.data_id 
+left join dir_dir a on a.dir_id=md.dir_id 
+left join user u on din.last_update_phone=u.phone 
+where din.org_index=1 group by md.dir_id;
+
+select p.*, pi.product_id, pi.create_time, pi.last_update_time, pi.last_update_phone, pi.status,u.name,pi.hide from product_index pi 
+left join product p on p.id=pi.data_id left join user u on u.phone=pi.last_update_phone where pi.product_id='5b890d424be8000b00428398' and pi.org_index=0; 
+
+
+SELECT * FROM pim.dir_info where id='5b836f01f4b598a700cdf1e9' ;
+select * from pim.manual_product where manual_id='5b836f01f4b598a700cdf1e9';
+select * from manual_dir;
+
+select di.*, din.dir_id, din.status, din.create_time, din.last_update_time, 
+din.last_update_phone, u.name,
+count(a.sub_dir) sonNum from 
+(select dir_id, sub_dir from dir_dir where dir_id = '') dd  
+left join dir_index din on din.dir_id = dd.sub_dir 
+left join dir_info di on di.id = din.data_id 
+left join dir_dir a on a.dir_id=dd.sub_dir 
+left join user u on din.last_update_phone=u.phone 
+where din.org_index=-1
+group by dd.sub_dir;
+select di.*, din.dir_id, din.status, din.create_time, din.last_update_time, 
+din.last_update_phone, u.name,
+count(a.sub_dir) sonNum from 
+(select manual_id, dir_id from manual_dir 
+where manual_id = '5b73d82a353ecd4b003cb894' and type=0) md  
+left join dir_index din on din.dir_id = dd.dir_id 
+left join dir_info di on di.id = din.data_id 
+left join dir_dir a on a.dir_id=dd.dir_id 
+left join user u on din.last_update_phone=u.phone 
+where din.org_index=-1
+group by md.dir_id;
+
+
+
+
+
+
+
+
+update dir_dir set order_key= id 
+where sub_dir in ('5678','5679');
+
+
+select di.*, din.dir_id, din.status, din.create_time, din.last_update_time, din.last_update_phone, u.name, count(a.sub_dir) sonNum 
+from (select manual_id, dir_id from manual_dir where manual_id = '5b73d82a353ecd4b003cb894' and type=0) md 
+left join dir_index din on din.dir_id = md.dir_id 
+left join dir_info di on di.id = din.data_id 
+left join dir_dir a on a.dir_id=md.dir_id 
+left join user u on din.last_update_phone=u.phone 
+where din.org_index=-1 and din.status in ( 1,2,3) group by md.dir_id ;
+
+
+select mi.*,mc.config,mco.contact,mv.view,
+com.id companyId,com.name companyName, com.address, com.logo,com.contact_phone, com.remarks 
+from manual_info mi 
+left join manual_index min on min.manual_id=mi.id 
+left join manual_cfg mc on mc.id=min.config_id 
+left join manual_contact mco on mco.id=mi.id and mco.org_index=min.org_index 
+left join manual_view mv on mv.id=min.view_id 
+left join company com on com.id=min.company_id 
+where min.manual_id='5b73d82a353ecd4b003cb894' and min.org_index=-1 and min.company_id='5b4f0565a18aaade002bff94';
+
+
+SELECT * FROM pim.manual_cfg;
+select * from pim.manual_view;
+select * from pim.manual_contact;
+INSERT INTO manual_cfg (id,config) VALUES ('1415','{manual_conf}') ON DUPLICATE KEY UPDATE config='{manual_conf}';
+select mc.id, mc.config from manual_cfg mc
+left join manual_index mi on mi.config_id=mc.id 
+left join manual_dir md on md.manual_id=mi.manual_id 
+where md.dir_id='5b8674794f2e3af100f4b2b9' and mi.org_index=-1;
+
+
+
+
+
+
+select dir_id from dir_product where product_id = (select product_id from product_index where data_id = '5b87cbde9270703900e480ca_FFFF');
+
+
+select di.id,di.name,dd.dir_id fatherDir, dd.sub_dir dirId from 
+        (select manual_id, dir_id from manual_dir where manual_id = '5b89027b4be8000b00428396') md 
+        left join dir_dir dd on dd.sub_dir=md.dir_id 
+        left join dir_index din on din.dir_id=md.dir_id
+        left join dir_info di on di.id = din.data_id 
+        where din.org_index=-1 
+        group by md.dir_id;
+
+
+
+SELECT * FROM pim.product_index where data_id not like '%_FFFF';
+
+update product a left join (SELECT * FROM product where id in ('5b87dacf9270703900e480cf')) b 
+on (b.id+'_FFFF')=a.id set a.data = b.data where b.id in ('5b87dacf9270703900e480cf');
+
+update pim.product set data=
+case  when id=('5b87dacf9270703900e480cf'+"_FFFF") then
+  (select data from (select * from pim.product) a where a.id='5b87dacf9270703900e480cf')
+ end;
+ 
+
+select * from pim.product_index where data_id REGEXP "^.{28}[^FFFF]$";
+ select * from product where id REGEXP "^.{5b87dacf9270703900e480cf}[_FFFF]$";
+ 
+ 
+ 
+ 
+#manual_info,manual_index,manual_cfg,manual_view,manual_product,manual_dir,
+ select * from organization where company_id='5b88eaa29270703900e480dc';
+ 
+ select * from manual_view where id='5b599f3ce1a7c90e005710bc_FFFF';
+ 
+ select * from manual_dir where dir_id='5b9f49e6ffc1295b0027709b';
+ select * from dir_dir where dir_id='5b9f49e6ffc1295b0027709b';
+ 
+ select * from manual_product where manual_id='5ba20bd57d1d0917006e5b8b';
+ select * from dir_product where dir_id='5ba224a0edfbb93c002040f8';
+select id from manual_product where manual_id = '5ba20bd57d1d0917006e5b8b' and org_index=-1 order by order_key desc limit 2,2;
+
+#('5b908b19766f301000294047','5b908ce76ea0d46100147626','5b908d176ea0d46100147627')
+select * from product_index where data_id not in (select id from product);
+select * from product where id in (select data_id from product_index where product_id in ('5b908b19766f301000294047','5b908b19766f301000294047','5b908ce76ea0d46100147626','5b908d176ea0d46100147627'));
+#5b908ce76ea0d46100147626_FFFF
+select * from manual_product where product_id not in (select product_id from product_index);
+
+
+select mi.name manualName, mi.synopsis manualSynopsis, mi.photo manualPhoto,
+    mc.config,mco.contact,mv.view,mf.form,  
+	com.name companyName, com.address companyAddress, com.logo companyLogo,
+	com.contact_phone companyContact, com.synopsis companySynopsis, count(mp.product_id)
+	from manual_info mi 
+	left join manual_index min on min.manual_id=mi.id 
+	left join manual_cfg mc on mc.id=min.config_id 
+	left join manual_contact mco on mco.id=mi.id and mco.org_index=min.org_index 
+	left join manual_view mv on mv.id=min.view_id 
+	left join company com on com.id=min.company_id 
+	left join manual_form mf on mf.id=min.manual_id 
+	left join manual_product mp on mp.manual_id=min.manual_id and mp.org_index=min.org_index 
+	left join product_index pin on pin.product_id=mp.product_id and pin.org_index=mp.org_index 
+	where min.manual_id='5b836f01f4b598a700cdf1e9' and min.org_index=-1 and min.company_id='5b599f3ce1a7c90e005710bc' 
+	and pin.hide=0;
+    
+    select count(mp.product_id) from manual_product mp
+    left join product_index pin on pin.org_index=mp.org_index and pin.product_id=mp.product_id 
+    where mp.manual_id='5b836f01f4b598a700cdf1e9' and mp.org_index=-1 and pin.hide=0;
+
+select * from company where manual_id='5b836f01f4b598a700cdf1e9' and org_index=-1;
+select * from manual_view where id='5b836f01f4b598a700cdf1e9_FFFF';
+select * from product_index where product_id='5b87d37d9270703900e480cd' and org_index=-1;
+select * from product where id like '5b87d37d9270703900e480cd%';
+
+select * from manual_product where manual_id='5b836f01f4b598a700cdf1e9' and org_index=-1 order by order_key desc limit 5;
+
+select di.id,di.name,dd.dir_id fatherDir, md.dir_id, count(dd2.sub_dir) sonNum from 
+        (select manual_id, dir_id from manual_dir where manual_id = '5b89027b4be8000b00428396') md 
+        left join dir_dir dd on dd.sub_dir=md.dir_id 
+        left join dir_dir dd2 on dd2.dir_id=md.dir_id 
+        left join dir_index din on din.dir_id=md.dir_id
+        left join dir_info di on di.id = din.data_id 
+        where din.org_index=-1  
+        group by md.dir_id;
+        
+        
+select count(org_index) from manual_index 
+    where manual_id='5b89027b4be8000b00428396' and org_index>-1;
+    
+select * from manual_index where manual_id='5ba20a7c7d1d0917006e5b88';
+select * from product_index where product_id='5b908ce76ea0d46100147626';
+select * from product where id in ('5b908d176ea0d46100147627','5b908b75766f301000294048','5b908ce76ea0d46100147626');
+
+
+select * from dir_product where dir_id='5ba224a0edfbb93c002040f8';
+select p.*, pi.product_id, pi.create_time, pi.last_update_time, pi.last_update_phone,
+        pi.status,u.name,pi.hide
+        from product p
+        left join product_index pi on pi.data_id=p.id and
+        pi.org_index=-1
+        left join user u on u.phone=pi.last_update_phone 
+        left join dir_product dp on dp.org_index=pi.org_index and dp.product_id=pi.product_id and dp.dir_id='5ba224a0edfbb93c002040f8'
+        where p.id in ('5ba21d3aedfbb93c002040f7','5ba21cccedfbb93c002040f3') ;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+select * from product_index where data_id in ('5ba361d5fbd829d30099daad', '5ba361dffbd829d30099daae_FFFF', '5ba361e3fbd829d30099daaf_FFFF', 
+'5ba361e7fbd829d30099dab0_FFFF', '5ba361eafbd829d30099dab1_FFFF', '5ba361eefbd829d30099dab2_FFFF', 
+'5ba361e3fbd829d30099daaf', '5ba361e7fbd829d30099dab0', '5ba361eafbd829d30099dab1', '5ba361eefbd829d30099dab2');
+
+
+
+select * from company where id='5b599f3ce1a7c90e005710bc';
+
+
+select * from manual_product where manual_id='5b836f01f4b598a700cdf1e9';
+
+
+select * from product_index where product_id='5ba21524edfbb93c002040f1' and org_index=0;
+
+select mp.manual_id manualId,pin.data_id dataId,p.data from manual_product mp 
+        left join product_index pin on mp.product_id=pin.product_id 
+        left join product p on p.id=pin.data_id 
+        group by pin.data_id;
+
+
+
+
