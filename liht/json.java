@@ -58,7 +58,7 @@ public class JsonUtil {
     public static Gson getGsonBean() {
         return gson;
     }
-    
+
     public static Type stringlistType = new TypeToken<List<String>>(){}.getType();
 
     /**
@@ -207,9 +207,9 @@ public class Application extends SpringBootServletInitializer implements WebMvcC
         FastJsonHttpMessageConverter fastConverter = new FastJsonHttpMessageConverter();
         FastJsonConfig fastJsonConfig = new FastJsonConfig();
         fastJsonConfig.setSerializerFeatures(
-                SerializerFeature.PrettyFormat, 
+                SerializerFeature.PrettyFormat,
                 SerializerFeature.WriteMapNullValue,
-                SerializerFeature.WriteNullNumberAsZero, 
+                SerializerFeature.WriteNullNumberAsZero,
                 SerializerFeature.WriteNullStringAsEmpty
             );
         // 处理中文乱码问题
@@ -226,3 +226,26 @@ public class Application extends SpringBootServletInitializer implements WebMvcC
     }
 
 ……
+@Bean//没有配置成功，待再修改测试
+    public HttpMessageConverters fastJsonHttpMessageConverters() {
+        //1.需要定义一个Convert转换消息的对象
+        FastJsonHttpMessageConverter fastConverter=new FastJsonHttpMessageConverter();
+        //2.添加fastjson的配置信息，比如是否要格式化返回的json数据
+        FastJsonConfig fastJsonConfig=new FastJsonConfig();
+        fastJsonConfig.setSerializerFeatures(SerializerFeature.PrettyFormat, SerializerFeature.DisableCircularReferenceDetect);
+        //BigDecimal数据处理
+        SerializeConfig serializeConfig = SerializeConfig.getGlobalInstance();
+        serializeConfig.put(BigDecimal.class, CustomerBigDecimalCodec.instance);
+        fastJsonConfig.setSerializeConfig(serializeConfig);
+        //3.在convert中添加配置信息
+        fastConverter.setFastJsonConfig(fastJsonConfig);
+        //4.中文乱码
+        List<MediaType> fastMediaTypes = new ArrayList<>();
+        fastMediaTypes.add(MediaType.APPLICATION_JSON_UTF8);
+        fastConverter.setSupportedMediaTypes(fastMediaTypes);
+
+        return new HttpMessageConverters(fastConverter);
+
+    }
+https://blog.csdn.net/qq_32967665/article/details/82941090
+https://segmentfault.com/a/1190000015792733

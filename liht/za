@@ -1,3 +1,32 @@
+//写公式：
+
+HSSFCEll newCell = row.createCell(newColIndex);
+
+newCell.setCellFormula("A1+B1");
+
+newCell.setCellType(Cell.CELL_TYPE_FORMULA);
+
+case HSSFCell.CELL_TYPE_FORMULA:
+32                 // cell.getCellFormula();
+33                 try {
+34                     value = String.valueOf(cell.getNumericCellValue());
+35                 } catch (IllegalStateException e) {
+36                     value = String.valueOf(cell.getRichStringCellValue());
+37                 }
+38                 break;
+
+
+
+
+
+InputStream is = new FileInputStream(fileName);
+			Workbook workbook = WorkbookFactory.create(is);
+			Sheet hssfSheet = workbook.getSheetAt(0);
+
+compile group: 'org.apache.poi', name: 'poi-ooxml', version: '3.9'
+
+
+
 https://412887952-qq-com.iteye.com/blog/2315133
 解决406报错，url中包含格式类型，如.gif，返回的并不是图片时，会报错Could not find acceptable representation。
 上述网址中的解决方法已过时，现在的解决方法是springboot的启动类实现WebMvcConfigurer，重写configureContentNegotiation方法，使返回时不对格式进行校验。

@@ -1,0 +1,205 @@
+1.守护线程是运行在后台的一种特殊进程。它独立于控制终端并且周期性地执行某种任务或者等待处理
+某些发生的事件。在Java中垃圾回收线程就是特殊的守护线程。
+
+2.创建线程的三种方式：继承Thread重写run方法；实现Runnable接口；
+实现Callable接口。
+runnable无返回值，callable可以拿到返回值。
+
+3.线程的start方法用于启动线程，只调用一次；run方法英语执行线程的运行时代码，可以重复调用。
+
+4.synchronized锁升级原理：偏向锁，轻量级锁，重量级锁
+synchronized底层实现原理：一对monitorenter/monitorexit指令实现。
+
+ReentrantLock
+
+atomic主要利用CAS（compare and swap）和volatile和native方法来保证原子操作。
+5.ThreadLocal常用场景：数据库连接和session管理等。
+
+6.什么是反射：反射是在运行状态中，对于任意一个类，都能知道这个类
+的所有属性和方法；对于任意一个对象，都能够调用它的任意一个方法和
+属性；这种动态获取的信息以及动态调用对象的方法的功能成为Java语言
+的反射机制。
+
+7. Java序列化是为了保存各种对象在内存中的状态，并且可以把保存的对象
+状态再读出来。
+需要使用序列化的情况：a。想把内存中的对象状态保存到文件中或者数据库中；
+b。想用套接字在网络上传送对象的时候；
+c。想通过RMI（远程方法调用）传输对象。
+
+8. 动态代理是什么？有哪些应用？
+动态代理是运行时动态生成代理类；
+应用有spring apo，hibernate数据查询，测试框架的后端mock，rpc，
+Java注解对象获取等 。
+
+如何实现动态代理：JDK原生动态代理和cglib动态代理。JDK原生动态代理
+是基于接口实现的，而cglib是基于继承当前类的子类实现的。
+
+9. 克隆：当需要一个新的对象来保存当前对象的状态时就靠克隆方法。
+实现克隆的方法：
+a。实现Cloneable接口并重写Object类中的clone方法；
+b。实现Serializable接口，通过对象的序列化和反序列化实现克隆，可以
+实现真正的深度克隆。
+
+浅克隆：当对象被复制时只复制它本身和其中包含的值类型的成变量，而引用类型
+的成员对象并没有复制。
+
+10. session的工作原理:客户端登录完成之后，服务器会创建对应的session，
+session创建完之后，会把session的id发送给客户端，客户端再存储到浏览器，
+这样客户端每次访问服务器时，都会带着sessionid，服务器拿到sessionid后，
+在内存中找到对应的session以正常工作。
+
+session只是依赖cookie存储sessionid，如果cookie被禁用，可以使用url
+中添加sessionid的方式保证session正常使用。
+
+11.避免sql注入：使用预处理preparedStatement；
+使用正则表达式过滤字符中的特殊字符。
+
+12. XSS攻击：跨站脚本攻击，是web程序中常见的漏洞。原理是攻击者
+往web页面里插入恶意的脚本代码（css代码，JavaScript代码等）。当
+用户浏览该页面时。嵌入其中的脚本代码会被执行，从而达到恶意攻击用户
+的目的，如盗取用户cookie，破坏页面结构，重定向到其他网站等。
+
+预防的核心是 必须对输入的数据做过滤处理。
+
+13.CSRF攻击：cross-site Request Forgery跨站请求伪造，攻击者
+盗用你的身份，以你的名义发送恶意请求，如发送邮件，消息，购买商品等。
+
+防御：验证请求来源地址；关键操作添加验证码；在请求地址添加token并验证。
+
+14.finally一定会执行，catch中若有return，则会等finally中的代码
+执行完之后再执行。
+
+15.重定向和转发：https://www.cnblogs.com/yinyl/p/8116490.html
+
+16.OSI七层模型：
+物理层
+数据链路层
+网络层
+传输层：端到端的
+会话层
+表示层
+应用层
+
+17.如何实现跨域？
+服务器端运行跨域设置CORS等于*
+在单个接口使用注解@CrossOrigin运行跨域；
+使用JSONP跨域。
+
+JSONP实现原理：JSON with Padding，利用script标签的src
+连接可以访问不同源的特性，加载远程返回的JS函数执行。
+
+18. aop面向切面编程，通过预编译方式和运行期动态代理实现程序
+功能的统一维护的一种技术。简单说就是统一处理某一切面（类）的
+问题的编程思想，比如统一处理日志，异常等。
+
+ioc控制反转，spring核心，对于Spring框架来说，就是由Spring
+来负责控制对象的生命周期和对象间的关系。简单说，控制指的是当前
+对象对内部成员的控制权；控制反转指的是，这种控制权不由当前对象
+管理了，由其他（类，第三方容器）来管理。
+
+19. Spring有哪些主要模块？
+Spring core：框架最基础的部分，提供ioc和依赖注入特性。
+
+Spring context：构建于core封装包基础上的context封装包，
+提供了一种框架式的对象访问方法。
+
+Spring dao：Data Access Object 提供了JDBC的抽象层。
+
+Spring aop：提供了切面编程实现，可以自定义拦截器，切点等。
+
+Spring web：提供支队web开发的集成特性，例如文件上传，利用
+servlet lesteners进行ioc容器初始化和针对web的applicationContext。
+
+Spring web mvc：Spring中的MVC封装包提供了web应用的model-view-controller
+（MVC）的实现。
+
+20.springboot核心两个配置文件：
+
+application(.yml/.properties):用于项目的自动化配置。
+bootstrap（.yml/.properties）:由父ApplicationContext加载，
+比application有限加载且里面的属性不能被覆盖。
+
+配置文件有.properties 和 .yml格式，主要区别是书写格式不同。
+另外.yml格式不支持@PropertySource注解导入。
+
+springboot.devtools.restart.enable设置为true可以实现
+热加载。
+
+21.springcloud是一系列框架的有序集合。利用springboot的开发
+便利性巧妙简化了分布式系统基础设施的开发，如服务发现注册，配置中心，
+消息总线，负载均衡，断路器，数据监控等。
+springcloud项目是由多个独立项目集合而成的，每个项目都是独立的，
+各自进行自己的迭代和版本发布。所以springcloud不方便使用版本号来管理，
+而是使用版本名。以避免和子项目版本号的冲突。
+
+断路器的作用：当某个服务单元发生故障后，通过断路器的故障监控
+向调用方返回一个错误响应，而不是长时间等待。这样就不会使得线程
+因调用故障服务被长时间占用不释放，避免了故障在分布式系统的蔓延。
+
+https://blog.csdn.net/q15150676766/article/details/80931187
+http://www.ityouknow.com/spring-cloud
+spring cloud核心组件：
+
+Eureka：服务发现
+Feign：基于动态代理机制，根据注解和选择的机器，拼接请求URL地址，
+发起请求。
+Ribbon：实现负载均衡，从一个服务的多台机器中选择一台。
+Hystrix：提供线程池，不同的服务走不同的线程池，实现了不同服务调用
+的隔离，避免了服务雪崩的问题。
+Zuul：网关管理，由Zuul网关转发请求给对应的服务。
+
+22.ORM框架：Object Relation Mapping对象关系映射，把数据库
+中的关系数据映射成程序中的对象。
+
+hibernate.show_SQL设置true可在控制台打印sql。
+
+hibernate实体类可以定义为final类，但这样就不能使用hibernate
+代理模式下的原始关联提供性能了，所以不建议。
+
+hibernate的get()和load()的区别？
+数据查询时，没有OID指定的对象，get返回null，load返回一个
+代理对象；load支持延迟加载，get不支持。
+
+23.RabbitMQ是实现了高级消息队列协议（AMQP）的开源消息代理软件
+（亦称面向消息的中间件）。RabbitMQ服务器是用Erlang语言编写的，
+而群集和故障转移是构建在开放电信平台框架上的。所有主要的编程语言均有
+与代理接口通讯的客户端库。
+https://blog.csdn.net/wangbing25307/article/details/80845641
+
+24.kafka：
+不能脱离zookeeper单独使用，因为要使用zookeeper管理和协调kafka的节点服务器。
+
+kafka有两种数据保存策略：按过期时间保留和按存储消息大小保留。
+
+集群数量不要超过7个，且数量最好是单数。
+
+25.zookeeper：开源的分布式应用程序协调服务，为分布式应用提供
+一致性服务的软件，提供的功能包括：配置维护，域名服务，分布式同步和
+组服务等。
+
+zookeeper怎么保证主从节点的状态同步？
+zookeeper的核心是原子广播，这个机制保证了各个server之间的同步。
+实现机制的协议叫zab协议。zab协议有两种模式，恢复模式（选主）和广播模式（
+同步）。
+
+集群中要有主节点的原因：在分布式环境中，有些业务逻辑只需要集群中的某一台
+机器进行执行，其他机器可以共享这个结果，这样可以大大减少重复计算，提高性能。
+
+zookeeper的通知机制：客户端会对某个znode建立一个watcher时间，当znode
+发生变化时，这些客户端会收到zookeeper的通知，然后根据znode变化来
+做出业务上的改变。
+
+select version();//查看mysql版本
+show processlist;//查询当前所有链接信息
+explain sql语句查看执行计划
+开启慢查询日志，查看慢查询的sql。
+
+24.redis：是使用c语言开发的告诉缓存数据库。
+使用场景：缓存近期热帖，记录用户会话信息。
+功能：数据缓存，分布式锁，数据持久化，支持事务，支持消息队列。
+
+redis为什么是单线程的？
+因为cpu不是redis的瓶颈，redis的瓶颈最大可能是机器内存或者网络贷款。
+既然单线程容易实现，而且CPU不会成为瓶颈，所以用单线程实现。
+
+nginx和nodejs也是高性能单线程代表。

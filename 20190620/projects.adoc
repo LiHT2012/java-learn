@@ -1,0 +1,43 @@
+1.org.apache.commons.text.StringEscapeUtils//用于转移和取消转义字符串for Java, Java Script, HTML and XML。
+
+添加依赖：compile 'org.apache.commons:commons-text:1.7'
+
+  a).StringEscapeUtils.escapeJava(dataStr);
+  效果示例Example:
+ input string: He didn't say, "Stop!"
+ output string: He didn't say, \"Stop!\"
+
+2.public ApiRespStatus overwriteContentByFile(MultipartFile file, String index) throws IOException {
+  //javax.ws.rs.client.Client
+  Client client = ClientBuilder.newClient();//javax.ws.rs.client.ClientBuilder
+  InputStream input = file.getInputStream();
+  //javax.ws.rs.client.Entity
+  Entity<InputStream> payload = Entity.text(input);//不可直接传入MultipartFile（是个接口）
+  // javax.ws.rs.core.Response
+  Response response = client.target(API_ETHERCAL_URL_HOST +"_/" + index)
+    .request(MediaType.TEXT_PLAIN_TYPE)//javax.ws.rs.core.MediaType
+    .put(payload);
+……
+}
+添加依赖：一开始只添加了client依赖，一直报错java.lang.NoSuchFieldError: EXCLUDE_EMPTY，百度说一般这种错都是包导入不全的问题
+compile group: 'org.glassfish.jersey.core', name: 'jersey-client', version: '2.22'
+compile group: 'org.glassfish.jersey.core', name: 'jersey-common', version: '2.22'
+compile group: 'org.glassfish.jersey.media', name: 'jersey-media-jaxb', version: '2.22'
+
+
+
+一些要看的资料
+https://www.cnblogs.com/yinyl/p/8116490.html
+https://www.cnblogs.com/yvanBk/p/9040039.html
+https://www.cnblogs.com/zuoci/p/7239891.html
+https://www.cnblogs.com/huxiao-tee/p/4657851.html
+https://www.cnblogs.com/wuxunyan/p/9095016.html
+https://baike.baidu.com/item/LiveScript/4192006?fr=aladdin
+https://my.oschina.net/u/3847203/blog/2413716
+https://www.cnblogs.com/yolandaBlog/p/9188149.html
+https://www.cnblogs.com/yun007/p/3739182.html
+https://www.cnblogs.com/wangkangluo1/archive/2012/04/19/2457072.html
+https://www.cnblogs.com/zhaogaojian/p/8186220.html
+https://lobert.iteye.com/blog/1604122
+https://www.cnblogs.com/chenliangcl/p/7346847.html
+https://blog.csdn.net/lhs960124/article/details/80404849

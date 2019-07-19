@@ -1,0 +1,12 @@
+https://blog.csdn.net/BeamCSDN/article/details/84389075
+
+https://blog.csdn.net/hss01248/article/details/53405293
+
+https://jingyan.baidu.com/article/60ccbceb02bd4264cab197b9.html
+
+tomcat配置https
+<Connector port="8443" protocol="org.apache.coyote.http11.Http11NioProtocol"
+               SSLEnabled="true" maxThreads="200" scheme="https" secure="true"
+               keystoreFile="/home/ubuntu/ssl/1528756569318.pfx" keystoreType="PKCS12" keystorePass="1528756569318" clientAuth="false" sslProtocol="TLS" />
+
+https://segmentfault.com/a/1190000015792733
