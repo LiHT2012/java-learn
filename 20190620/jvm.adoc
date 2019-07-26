@@ -150,9 +150,9 @@ Full GC：对整个堆来说的，出现Full GC通常伴随至少一次Minor GC�
   方法区大小不是固定的，jvm可根据需要动态调整。方法区主要存放类信息、常量、静态变量、编译后的代码。
 
   控制方法区大小：减少程序中class数量、尽量使用较少的静态变量
+  修改：-XX:MaxPermSize调大 JVM最大允许分配的非堆内存，按需分配
 
-
-  修改：-XX:MaxPerSize调大
+https://www.cnblogs.com/mingforyou/archive/2012/03/03/2378143.html
 
   StackOverflowError异常：线程的方法嵌套调用层次太多，随着Java栈中桢的增多，最终会由于该线程Java栈中所有栈帧总和
   大于-Xss设置的值而产生此异常。

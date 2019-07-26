@@ -32,3 +32,21 @@ private    ∨   ×   ×     ×
 6 ) 若是 static 成员变量,必须考虑是否为 final 。
 7 ) 类成员方法只供类内部调用,必须是 private 。
 8 ) 类成员方法只对继承类公开,那么限制为 protected 。
+
+transient 关键字总结
+
+https://segmentfault.com/a/1190000018401456
+
+Java序列化技术正是将对象转变成一串由二进制字节组成的数组，可以通过将二进制数据保存到磁盘或者传输网络，磁盘或者网络接收者可以在对象的属类的模板上来反序列化类的对象，达到对象持久化的目的。
+
+在 Java 中有两种实现序列化的方式，Serializable 和 Externalizable，可能大部分人只知道 Serializable 而不知道 Externalizable。
+
+这两种序列化方式的区别是：实现了 Serializable 接口是自动序列化的，实现 Externalizable 则需要手动序列化，通过 writeExternal 和 readExternal 方法手动进行。
+
+1）transient修饰的变量不能被序列化；
+
+2）transient只作用于实现 Serializable 接口；
+
+3）transient只能用来修饰普通成员变量字段；
+
+4）不管有没有 transient 修饰，静态变量都不能被序列化；
