@@ -9,12 +9,15 @@ public class SortTest {
 	 */
 	public static void insertSort(int[] arr) {
 		for (int i = 1; i < arr.length; i++) {
-			int temp = arr[i];
-			for (int j = i; j > 0; j--) {// 有i-1个已经排好序的数待比较
-				if (arr[j - 1] > temp) {
-					arr[j] = arr[j - 1];// 数组后移操作
-				} else {
-					arr[j] = temp;
+			// 如果当前遍历数字小于前一个数字
+			if (arr[i] < arr[i - 1]) {
+				int temp = arr[i];
+				for (int j = i; j > 0; j--) {// 有i-1个已经排好序的数待比较
+					if (arr[j - 1] > temp) {
+						arr[j] = arr[j - 1];// 数组后移操作
+					} else {
+						arr[j] = temp;
+					}
 				}
 			}
 		}
