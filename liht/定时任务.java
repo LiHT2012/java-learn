@@ -31,3 +31,4 @@ curl -d "baseId=581be94c098b099a0029f3cd" http://localhost:8080/dbc/api/trans/ab
 
 系统cron设定：/etc/crontab
 通过 /etc/crontab 文件，可以设定系统定期执行的任务，当然，要想编辑这个文件，得有root权限。
+https://www.cnblogs.com/chen-lhx/p/5996781.html
