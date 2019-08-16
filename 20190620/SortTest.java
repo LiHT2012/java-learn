@@ -56,10 +56,7 @@ public class SortTest {
 	}
 
 	/**
-	 * 堆排序
-	 * 1.将序列构建成大顶堆。
-	  2.将根节点与最后一个节点交换，然后断开最后一个节点。
-	  3.重复第一、二步，直到所有节点断开。
+	 * 堆排序 1.将序列构建成大顶堆。 2.将根节点与最后一个节点交换，然后断开最后一个节点。 3.重复第一、二步，直到所有节点断开。
 	 */
 	public void heapSort(int[] a) {
 		// 循环建堆
@@ -106,81 +103,153 @@ public class SortTest {
 	/**
 	 * 冒泡排序
 	 */
-	public void bubbleSort(int[] arr){
-		for(int i=0; i<arr.length; i++) {
-			for(int j=i+1; j<arr.length;j++) {
-				if(arr[i]>arr[j]) {//向后冒泡，按从小到达排序
-					swap(arr,i,j);
+	public void bubbleSort(int[] arr) {
+		for (int i = 0; i < arr.length; i++) {
+			for (int j = i + 1; j < arr.length; j++) {
+				if (arr[i] > arr[j]) {// 向后冒泡，按从小到达排序
+					swap(arr, i, j);
 				}
 			}
 		}
 	}
-	
+
 	/**
-	 * 快速排序
+	 * 快速排序 时间复杂度 最好情况：O(nlogn) 最坏情况：O(n2) 平均情况：O(nlogn) 
+	 * 空间复杂度： O(logn) （栈占用的空间）
+	 * 稳定性： 不稳定
 	 */
-	public static void quickSort(int[] arr, int start, int end) {  
-		int standard = arr[start];
-		if(start >= end) {
+	public static void quickSort(int[] arr, int start, int end) {
+
+		if (start >= end) {
 			return;
 		}
+		int standard = arr[start];// 数组的第一个元素作为中轴
 		int low = start;
 		int high = end;
-		while(low < high) {
-			while(low < high && standard <= arr[high]) {
+		while (low < high) {
+			while (low < high && standard <= arr[high]) {
 				high--;
 			}
-			arr[low]= arr[high];//找到右侧第一个比standard小的放在low位置
-			while(low<high && standard >= arr[low]) {
+			arr[low] = arr[high];// 比中轴小的记录移到低端
+			while (low < high && standard >= arr[low]) {
 				low++;
 			}
-			arr[high] = arr[low];
+			arr[high] = arr[low];// 比中轴大的记录移到高端
 		}
-		arr[low] = standard;
-		quickSort(arr, start, low-1);
-		 quickSort(arr, low+1, end);
+		arr[low] = standard;// 中轴记录到位，low为中轴位置。所谓的中轴的位置就是选择的那个基准数所在的位置。
+//		System.out.println(low);
+		quickSort(arr, start, low - 1);
+		quickSort(arr, low + 1, end);
+	}
+
+//	 static int partition2(int[] arr, int start, int end) {
+//		if (start >= end) {
+//			return -1;
+//		}
+//		int standard = arr[start];
+//		int low = start;
+//		int high = end;
+//		while (low < high) {
+//			while (low < high && standard <= arr[high]) {
+//				high--;
+//			}
+////			arr[low] = arr[high];// 找到右侧第一个比standard小的放在low位置
+//			while (low < high && standard >= arr[low]) {
+//				low++;
+//			}
+////			arr[high] = arr[low];
+//		}
+////		arr[low] = standard;
+//		return low;
+//	}
+//
+//	 static void getmid(int L[],int low,int high)
+//	 {
+//	 	int mid=(low+high)/2;
+//	 	while(true)
+//	 	{
+//	 		int pos=partition(L,low,high);
+//	 		if(pos==mid)
+//	 			break;
+//	 		else if(pos>mid)
+//	 			high=pos-1;
+//	 		else low=pos+1;
+//	 	}
+//	 	System.out.println(L[mid]);
+//	 }
+//	 
+//	static int partition(int L[], int low, int high) {
+//		int i, num = low;
+//		for (i = low + 1; i <= high; i++) {
+//			if (L[i] < L[low]) {
+//				swap(L, i, num + 1);
+//				num++;
+//			}
+//		}
+//		swap(L, low, num);
+////		System.out.println(num);
+//		return num;
+//	}
+//
+//	static void Qsort(int L[], int low, int high) {
+//		if (low < high) {
+//			int pivot = partition(L, low, high);
+//			Qsort(L, low, pivot - 1);
+//			Qsort(L, pivot + 1, high);
+//		}
+//	}
+
+	public static void main(String[] args) {
+		int[] arr = { 3, 15, 2, 7, 5, 6, 1, 12, 4, 9, 8, 11 };
+//		getmid(arr, 0, arr.length-1);
+		quickSort(arr, 0, arr.length - 1);
+//		Qsort(arr,0,arr.length-1);
+//		for(int i=0; i<arr.length;i++) {
+//			System.out.println(arr[i]);
+//		}
+
 	}
 
 	/**
-	 * 归并排序
-	 * 调用mergeSort(arr,0,arr.length-1)
+	 * 归并排序 调用mergeSort(arr,0,arr.length-1)
 	 */
 	public static void mergeSort(int[] arr, int low, int high) {
-		if(high <= low) {
+		if (high <= low) {
 			return;
 		}
-		int middle = (low + high)/2;
+		int middle = (low + high) / 2;
 		mergeSort(arr, low, middle);
-		mergeSort(arr,middle+1,high);
-		merge(arr,low,middle,high);
+		mergeSort(arr, middle + 1, high);
+		merge(arr, low, middle, high);
 	}
+
 	private static void merge(int[] arr, int low, int middle, int high) {
 		int[] temp = new int[high - low + 1];
-		int i = low,j=middle+1, index = 0;
-		while(i<=middle && j<=high) {//遍历两边数组，取出晓得放在临时数组中
-			if(arr[i] < arr[j]) {
+		int i = low, j = middle + 1, index = 0;
+		while (i <= middle && j <= high) {// 遍历两边数组，取出晓得放在临时数组中
+			if (arr[i] < arr[j]) {
 				temp[index] = arr[i];
 				i++;
-			}else {
-				temp[index]=arr[j];
+			} else {
+				temp[index] = arr[j];
 				j++;
 			}
 			index++;
 		}
-		//处理多余数据
-		while(j<= high) {
-			temp[index]=arr[j];
+		// 处理多余数据
+		while (j <= high) {
+			temp[index] = arr[j];
 			j++;
 			index++;
 		}
-		while(i<=middle) {
-			temp[index]=arr[i];
+		while (i <= middle) {
+			temp[index] = arr[i];
 			i++;
 			index++;
 		}
-		//将临时数组放到原数组
-		for(int k=0; k<temp.length;k++) {
-			arr[low+k] = temp[k];
+		// 将临时数组放到原数组
+		for (int k = 0; k < temp.length; k++) {
+			arr[low + k] = temp[k];
 		}
 	}
 
@@ -188,35 +257,36 @@ public class SortTest {
 	 * 基数排序
 	 */
 	public static void radixsort(int[] arr) {
-		//首先查找arr中最大的数以确定位数
+		// 首先查找arr中最大的数以确定位数
 		int max = arr[0];
-		for(int i=1; i< arr.length;i++) {
-			if(arr[i] > max) {
+		for (int i = 1; i < arr.length; i++) {
+			if (arr[i] > max) {
 				max = arr[i];
 			}
 		}
-		int maxLength = (max +"").length();
-		int[][] temp = new int[10][arr.length];//行为0~9
-		//创建数组来存temp内层元素个数，即某位为n的元素有几个
+		int maxLength = (max + "").length();
+		int[][] temp = new int[10][arr.length];// 行为0~9
+		// 创建数组来存temp内层元素个数，即某位为n的元素有几个
 		int[] count = new int[10];
-		for(int i=0,n=1;i<maxLength;i++,n*=10) {
-			for(int j=0;j<arr.length;j++) {
-				int num = arr[j]/n%10;
+		for (int i = 0, n = 1; i < maxLength; i++, n *= 10) {
+			for (int j = 0; j < arr.length; j++) {
+				int num = arr[j] / n % 10;
 				temp[num][count[num]] = arr[j];
 				count[num]++;
 			}
 			int index = 0;
-			for(int x = 0; x < arr.length; x++) {
-				if(count[x] !=0) {
-					for(int y=0;y<count[x];y++) {
-						arr[index]=temp[x][y];
+			for (int x = 0; x < arr.length; x++) {
+				if (count[x] != 0) {
+					for (int y = 0; y < count[x]; y++) {
+						arr[index] = temp[x][y];
 						index++;
 					}
-					count[x] =0;
+					count[x] = 0;
 				}
 			}
 		}
 	}
+
 	private static void swap(int[] data, int i, int j) {
 		int tmp = data[i];
 		data[i] = data[j];
