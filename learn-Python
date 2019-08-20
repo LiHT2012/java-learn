@@ -1,0 +1,42 @@
+在.py文件中：
+1.直接 print "内容"，run即可打印除内容Python2的书写语法。#问题，www.codecademy.com上 内容为中文的时候，会报错，尚未解决。
+print("内容")，Python3语法，有同样问题
+
+2.字符串的拼接打印，类Java ：print "str1"+"str2"
+
+3.python中的变量无需提前指定类型，如 number=5#number就是int类型的；string = "aaa"#String就是字符串类型的
+
+4.Python中的加减乘除等与Java类似。
+
+5.python中的注释用#
+
+6.Python中的除法类比Java中/是一样的，但是Python中可以这样写： 7./2  or  7/2.  or 7./2. or float(7)/2 这样的结果就是带小数点的,对于用变量的除法，则只能用float(sum)/numbers。
+
+7.python中的多行字符串写法： """the contens with multiline""",即用前后三个双引号包括多行字符串即可，也可以是三个单引号。
+
+8.Python中的Boolean为 True和False，不同于Java中的true和false。
+
+9.数字转字符串 str(num);字符串数字转相应的数字类型，int(str_num),float(str_num),如果str_num是浮点数，此时的int(str_num)即转化为整型
+
+10.获取字符串的第5个字符：fifth_letter = "MONTY"[4]，字符串的index也是从0开始的。
+关于字符串的几个函数：len(str),str.lower(),str.upper(),str(一些非字符串类型的变量，如数字等)
+
+11.name = "Mike"
+print "Hello %s" % (name)，类似C语言中的表达。
+
+name = raw_input("What is your name? ")#表示需要键盘输入
+quest = raw_input("What is your quest? ")
+color = raw_input("What is your favorite color? ")
+
+print "Ah, so your name is %s, your quest is %s, " \
+"and your favorite color is %s." % (name, quest, color)#多个占位符的情况。
+
+12.datetime包的使用
+from datetime import datetime#导入包，类似Java中的import
+now = datetime.now()
+print now 
+print now.year
+print now.month
+print now.day
+print '%02d/%02d/%04d' % (now.month, now.day, now.year) #打印效果mm/dd/yyyy
+print '%02d:%02d:%02d' % (now.hour, now.minute, now.second)#打印效果hh:mm:ss
