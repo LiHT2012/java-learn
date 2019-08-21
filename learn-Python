@@ -40,3 +40,43 @@ print now.month
 print now.day
 print '%02d/%02d/%04d' % (now.month, now.day, now.year) #打印效果mm/dd/yyyy
 print '%02d:%02d:%02d' % (now.hour, now.minute, now.second)#打印效果hh:mm:ss
+
+story = """aadd %s ddfdfd %s ……"""
+print story %(str1,str2……)
+
+13.def clinic():
+    print "You've just entered the clinic!"
+    print "Do you take the door on the left or the right?"
+    answer = raw_input("Type left or right and hit 'Enter'.").lower()
+    if answer == "left" or answer == "l":
+        print "This is the Verbal Abuse Room, you heap of parrot droppings!"
+    elif answer == "right" or answer == "r":
+        print "Of course this is the Argument Room, I've told you that already!"
+    else:
+        print "You didn't pick left or right! Try again."
+        clinic()#??
+
+clinic()#??
+#定义了一个函数？主要语法是if ***:   elif ***: else ****:
+
+14.3**16
+# Remember that ** can be read as 'to the power of',即相当于3^16次方. 3**16 is about 43 million.
+
+15.Python中的大于小于等于的比较和true，false的判断与Java相同
+not is evaluated first;
+and is evaluated next;
+or is evaluated last.
+
+
+16.def using_control_once():
+    if 1==1:
+        return "Success #1"
+Python中函数的写法？？
+直接return的true，false的函数也可以直接print
+
+正常装了Python等环境之后，在控制台可以执行 python shell.py，即可执行脚本。
+
+
+17.string.isalpha() to make sure that it only contains letters.
+
+new_word=new_word[1:len(new_word)]#表示从index=1取到length-1的位置，即左闭右开区间
