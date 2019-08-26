@@ -146,3 +146,6 @@ print type('spam')
 <type 'int'>
 <type 'float'>
 <type 'str'>
+
+20 a += b #等同于 a= a+b
+type(num) == int # 判断num是否是int类型数据
