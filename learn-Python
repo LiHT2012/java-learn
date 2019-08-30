@@ -159,3 +159,117 @@ Python3
   return low_limit,high_limit
 
 low, high = get_boundaries(100,20)
+
+2."na"*6，表示将字符串"na"重复六次。
+
+def repeat_stuff(stuff, num_repeats=10):#表示给num_repeats一个默认值
+  return stuff*num_repeats
+
+The function should return num raised to the 10th power.#表示num**10，是十次方，而不是十倍
+num**(1/2)#开方根
+num1 divided by half of num2.#num1%(num2/2)
+
+3.my_baby_bool="true"
+print(type(my_baby_bool))
+
+
+try:
+  # function call
+except ______:
+  # error message
+
+def divide_two_numbers(x, y):
+  result = x / y
+  return result
+
+try:
+  result = divide_two_numbers(2,0)#运行将会报错ZeroDivisionError
+  print(result)
+except NameError:
+  print("A NameError occurred.")
+except ValueError:
+  print("A ValueError occurred.") 
+except ZeroDivisionError:
+  print("A ZeroDivisionError occurred.")
+
+ base raised to the exponent#base**exponent
+
+4.import random
+num = random.randint(1, 10)#表示生成1到10的随机数
+
+5sam_height=['Sam',67]#数组
+
+names = ['Jenny', 'Alexus', 'Sam', 'Grace']
+dogs_names = ['Elphonse', 'Dr. Doggy DDS', 'Carter', 'Ralph']
+names_and_dogs_names = zip(names, dogs_names)#合并两个数组
+list_of_names_and_dogs_names = list(names_and_dogs_names)
+print(list_of_names_and_dogs_names)#打印结果如下：
+[('Jenny', 'Elphonse'), ('Alexus', 'Dr. Doggy DDS'), ('Sam', 'Carter'), ('Grace', 'Ralph')]
+
+
+5.# Create a list
+my_list = [1, 2, 3]
+
+# Append a number
+my_list.append(5)#若数组中的不是单一元素，则append时用括号括起来表示是一个单元即可
+print(my_list) # check the result
+the output looks like:
+[1, 2, 3, 5]
+
+
+orders = ['daisy', 'buttercup', 'snapdragon', 'gardenia', 'lily']
+# Create new orders here:
+new_orders = orders +['lilac','iris']#两个数组的拼接
+print(new_orders)#结果：['daisy', 'buttercup', 'snapdragon', 'gardenia', 'lily','lilac','iris']
+
+6.
+if we want the numbers from 0 through 9, we use range(10) because 10 is 1 greater than 9:
+
+my_range = range(10)#默认从0开始
+Just like with zip, the range function returns an object that we can convert into a list:
+
+>>> print(my_range)
+range(0, 10)#左闭右开区间
+>>> print(list(my_range))
+[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+range(2, 9, 2) will give us a list where each number is 2 greater than the previous number:
+
+>>> my_range2 = range(2, 9, 2)#2到9的左闭右开区间，并且数字间隔为2(末尾参数)
+>>> print(list(my_range2))
+[2, 4, 6, 8]
+
+7.list1 = range(2, 20, 3)
+
+list1_len = len(list1)#计算数组长度
+print(list1_len)
+
+8.employees = ['Michael', 'Dwight', 'Jim', 'Pam', 'Ryan', 'Andy', 'Robert']
+index4=employees[4]#和Java一样，Index是0～lenth-1
+employees[-1]#表示获取最后一个
+
+employees[0:2]#表示获取 左闭右开区间的数组，获取的结果是个子数组
+employees[-2:]#表示获取数组的最后两个元素的子数组
+employees.count('Jim')#统计数组中‘’元素的个数
+employees.sort()#会按字母顺序进行排序
+new_employees = sorted(employees)#排序后不改变原数组，而是新生成一个数组
+
+
+9.def double_index(lst, index):
+  new_list = []
+  i=0
+  length = len(lst)
+  while(i < length):#while循环
+    if i == index :
+      new_list.append(2*lst[i])
+    else :
+      new_list.append(lst[i])
+    i +=1#变量修改
+  return new_list
+
+def remove2(lst, start, end):#去除start，end闭区间的元素
+  length = len(lst)
+  if end+1 < length -1:
+  	return lst[:start]+lst[end+1:]
+  else :
+    return lst[:start]
