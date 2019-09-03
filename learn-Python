@@ -273,3 +273,89 @@ def remove2(lst, start, end):#去除start，end闭区间的元素
   	return lst[:start]+lst[end+1:]
   else :
     return lst[:start]
+
+10.def middle_element(lst):
+  length = len(lst)
+  if length%2 == 0:
+    return (lst[int(length/2)]+lst[int(length/2 -1)])/2
+  else:
+    return lst[int((length-1)/2)]#List的Index要保证是Integer类型，所以在【】中的值加了int(****)
+
+11.for breed in dog_breeds:#dog_breeds数组，类似Java中的foreach循环
+  print(breed)
+
+for i in range(5):#打印五次promise
+  print(“promise”)
+
+break在Python中同样适用，会跳出本层循环
+continue也适用，跳过本次循环
+
+12.list comprehension
+usernames = [word for word in words if word[0] == '@']#表示想words数组中的第一个字符是@的元素加入到usernames数组中
+updated_upvotes = [vote_value + 100 for vote_value in my_upvotes]#表示将my_upvotes中每个元素值加100后作为updated_upvotes数组的元素
+
+def delete_starting_evens(lst):#遍历数组使其以奇数元素开头
+  while (len(lst) > 0 and lst[0] % 2 == 0):
+    lst = lst[1:]
+  return lst
+
+for index in range(1, len(lst), 2):#返回index为奇数的元素数组
+  new_list.append(lst[index])
+
+13.字符串的取某位或某几位的操作，可以看成是字符数组的操作，即str[:4],表示从0取到3的子串，即0到4的左闭右开区间
+str[4:]表示从第四位开始到最后一位
+
+14.str[0]="R"#说明str是一个字符串，这种是错误的，字符串不支持这种修改
+
+password = "theycallme\"crazy\"91"#引号中有引号需要转义
+
+def contains(big_string, little_string):#判断较短字符串是否是长串的子串
+  i = 0
+  j = 0
+  while i < len(big_string):
+    if big_string[i] == little_string[j]:
+      while j < len(little_string):
+        if big_string[i+j] == little_string[j]:
+          j += 1
+        else :
+          j = 0
+          break
+      if j > 0:
+        return True
+    i += 1
+  return False
+
+def common_letters(string_one, string_two):#获取两字符串中的公有字符（返回的列表中每个字符唯一）
+  lst = []
+  for n in string_one:
+    for m in string_two:
+      if n == m and lst.count(n) == 0:
+        lst.append(n)
+        break
+  return lst
+
+15.有关String的一些方法：
+str.upper()
+
+str.lower()
+
+'Hello world'.title()>>>>>>'Hello World'#returns the string in title case, which means the first letter of each word is capitalized.
+
+'Hello world'.split()>>>>>>['Hello','world']#可以有参数，即类似Java，无参数表示用空格进行间隔
+
+' '.join(['Hello','world'])>>>>'Hello word'
+
+'Hello world'.replace('H','J')>>>>>'Jello world'
+
+' Hello world '.strip()>>>>'Hello world'
+
+"{} {}".format("Hello","world")>>>>'Hello world'
+
+16。\n Newline
+\t Horizontal Tab
+
+str.replace('想被替换的','想要换成的')
+str.find('')#will return the index value of the first character of that string.
+
+def favorite_song_statement(song, artist):
+  return "My favorite song is {} by {}.".format(song, artist)#{}类似占位符%d的作用
