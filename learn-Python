@@ -359,3 +359,30 @@ str.find('')#will return the index value of the first character of that string.
 
 def favorite_song_statement(song, artist):
   return "My favorite song is {} by {}.".format(song, artist)#{}类似占位符%d的作用
+
+for temp in highlighted_poems_stripped:
+  highlighted_poems_details.append(temp.split(':'))#highlighted_poems_details是一个数组的数组
+
+https://www.codecademy.com/practice/projects/censor-dispenser这个页面的练习没做下去
+
+
+def count_multi_char_x(word, x):#查看word中有多少个x，x可以是单个字符也可以是多个字符的情况
+  temp = word.split(x)
+  return len(temp)-1
+
+def substring_between_letters(word, start, end):#获取word中以start字符开头end字符结尾的中间部分的子串，若不同时包括start和end则返回整个word
+  start_ind = word.find(start)
+  end_ind = word.find(end)
+  if start_ind > -1 and end_ind > -1:
+  	return(word[start_ind+1:end_ind])
+  return word
+
+17.from datetime import datetime
+
+import random
+
+# Create random_list below:
+random_list = [random.randint(1,101) for i in range(101)]
+
+# Create randomer_number below:
+randomer_number = random.choice(random_list)
