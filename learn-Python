@@ -386,3 +386,76 @@ random_list = [random.randint(1,101) for i in range(101)]
 
 # Create randomer_number below:
 randomer_number = random.choice(random_list)
+
+。random.choice() which takes a list as an argument and returns a number from the list
+。random.randint() which takes two numbers as arguments and generates a random number between the two numbers you passed in
+
+
+
+18.import codecademylib3_seaborn
+
+# Add your code below:
+from matplotlib import pyplot as plt#matplotlib, which allows you to plot your Python code in 2D.
+
+import random
+
+numbers_a = range(1, 13)
+
+numbers_b = random.sample(range(1000), 12)#random.sample() that takes a range and a number as its arguments. It will return the specified number of random numbers from that range.返回在range范围内指定个数的随机数
+
+plt.plot(numbers_a, numbers_b)
+
+plt.show()
+
+
+19.cost_of_gum = 0.10
+cost_of_gumdrop = 0.35
+
+cost_of_transaction = cost_of_gum + cost_of_gumdrop
+# Returns 0.44999999999999996
+
+
+from decimal import Decimal
+
+cost_of_gum = Decimal('0.10')
+cost_of_gumdrop = Decimal('0.35')
+
+cost_of_transaction = cost_of_gum + cost_of_gumdrop
+# Returns 0.45 instead of 0.44999999999999996
+
+
+20.在script.py中from library import always_three，其中always_three 是在library.py中写的函数，这样在script.py中可以调用always_three方法
+
+https://www.codecademy.com/courses/learn-python-3/videos/learn-python3-datetimes?action=resume_content_item 
+https://www.codecademy.com/courses/learn-python-3/videos/learn-python3-pipenv?action=resume_content_item
+这个video加载不出来
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
