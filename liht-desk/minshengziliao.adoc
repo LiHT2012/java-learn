@@ -1,0 +1,52 @@
+'790573', '5ac974140c6ef72300428c51', '{\"id\":\"5ac974140c6ef72300428c51\",\"data_prop\":{\"last_vid\":7,\"creation_time\":1523151892462,\"last_update_time\":1523152396631,\"creator\":\"59648f158ea243a3007b35bc\",\"last_updator\":\"59648f158ea243a3007b35bc\",\"form_id\":\"58d35002f372012a00175415\",\"lang\":[\"zh\"],\"init_lang\":\"zh\",\"version\":\"1.1\"},\"values\":{\"1\":{\"fid\":1,\"path\":{\"1\":1},\"vid\":1,\"value\":{\"zh\":\"咨询详情库\"}},\"3\":{\"fid\":4,\"path\":{\"4\":1},\"vid\":3,\"value\":{\"zh\":\"咨询详情库\"}},\"6\":{\"fid\":2,\"path\":{\"2\":1},\"vid\":6,\"value\":\"http://7xs74m.com1.z0.glb.clouddn.com/993717b8-dde3-4e96-975c-75ee80c0427e?e=1513683086&token=fZZHQu4JaXWtlWu9hvTpc9Rk4BFgUPngfAoq8Nio:wyXToqlETc4J57scg8EOr4qo-So=\"}}}', '2018-04-08 09:44:52', '2018-04-08 09:44:52', '58d35002f372012a00175415', '1'
+
+test1编辑权限报错 空指针
+{"id":"5ac974140c6ef72300428c51","type":"base","values":{"delete":[9],"add":[{"fid":24,"value":"5a6c269b2c13d2fd000f64f5","path":{"23":0,"24":4},"vid":18}],"merge":[{"fid":24,"path":{"23":1,"24":3},"vid":15,"value":"5964297f8ea243a3007b357a"}]}}
+
+设计模式相关问题：spring用到的设计模式;java常用设计模式面试
+
+35 岁（含）以下,具有 2 年及以上 JAVA 开发经验，特别优秀（如研究生、重点院校毕业、能力突出等）可适当放开工作年限要求；
+
+扎实的 JAVA 编程能力，对面向对象有清晰的认识，--面向对象的特征：（抽象，）封装，继承（单继承多实现），多态（重写，重载，动态绑定）---多态性是指允许不同类的对象对同一消息作出响应
+熟悉常用设计模式,--https://www.cnblogs.com/lchzls/p/7291777.html
+---https://www.cnblogs.com/study-makes-me-happy/p/7839052.html
+https://www.cnblogs.com/cr330326/p/5627658.html
+熟悉 Java 核心技术及
+Spring/Mybatis 等主流平台框架；----https://blog.csdn.net/Wz1135640/article/details/79626470
+---https://blog.csdn.net/wz1135640/article/details/79626508
+
+熟练使用 DB2、MySQL 等主流数据库进行应用开发，https://www.cnblogs.com/brucemengbm/p/7278258.html
+熟悉数据库原理以及常用性能优化技术，熟悉 SQL 语句；----http://blog.jobbole.com/100349/
+https://blog.csdn.net/u012661010/article/details/72801405
+https://blog.csdn.net/hoho_12/article/details/52694194
+https://blog.csdn.net/qq_21492635/article/details/72902610
+
+
+具有很好的逻辑分析能力，能快速理解业务需求及相关设计逻辑；
+
+了解 linux/unix 操作系统，熟悉 weblogic/tomcat/apache/nginx 等主流服务器；
+----http://blog.51cto.com/xslwahaha/1741259
+https://www.cnblogs.com/kouryoushine/articles/7906297.html
+https://blog.csdn.net/tony168hongweigan/article/details/52426049
+https://blog.csdn.net/lzl102801/article/details/9029161
+
+
+熟悉各类 Java 应用中间件产品，
+----
+中间件是一种独立的系统软件或服务程序，分布式应用软件.借助这种软件在不同的技术之间共享资源。中间件位于客户机/服务器的操作系统之上，
+管理计算机资源和网络通讯。是连接两个独立应用程序或独立系统的软件。相连接的系统，即使它们具有不同的接口，但通过中间件相互之
+间仍能交换信息。执行中间件的一个关键途径是信息传递。通过中间件，应用程序可以工作于多平台或 OS 环境。
+java 中间件，就是用java 语言实现的中间件
+
+https://blog.csdn.net/wzygis/article/details/19334945
+https://blog.csdn.net/qiyeliuli/article/details/71698167
+https://www.cnblogs.com/lyrand/p/8138394.html
+
+----
+
+有 Zookeeper/Redis/ActiveMQ 或高性能通讯框架（如 MINA）等实际应用经验者优先；
+https://blog.csdn.net/u014042066/article/details/77584668
+
+具有大型互联网金融项目应用开发、技术架构经验者优先。
+https://wenku.baidu.com/view/fa86982c4028915f814dc2af.html
+http://shareisattitude.iteye.com/blog/2367162

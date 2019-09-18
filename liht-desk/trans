@@ -1,0 +1,1270 @@
+package com.dbcool.api.formdb.transform;
+
+import com.dbcool.api.cfg.sysres.ResFormIdsMap;
+//import com.dbcool.api.dto.todbc.DdbParameter;
+import com.dbcool.api.exception.GeneralException;
+import com.dbcool.api.formdb.model.CommonField;
+import com.dbcool.api.formdb.model.JsonData;
+import com.dbcool.api.formdb.model.JsonForm;
+import com.dbcool.api.formdb.solr.service.SolrRebuildCoreService;
+import com.dbcool.api.json.OldJsonData;
+import com.dbcool.api.json.OldJsonForm;
+import com.dbcool.api.model.DbcUser;
+import com.dbcool.api.model.DdbBaseObj;
+import com.dbcool.api.model.TwoDimension;
+import com.dbcool.api.model.TwoDimensionCreation;
+import com.dbcool.api.refresh.database.Database;
+import com.dbcool.api.refresh.database.MysqlServiceCommon;
+import com.dbcool.api.refresh.database.NewDatabase;
+import com.dbcool.api.transport.BatchDataTransport;
+import com.dbcool.api.transport.DataTransDdb;
+import com.dbcool.api.transport.DataTransTwoDimension;
+import com.dbcool.api.transport.DataTransport;
+import com.dbcool.api.util.JacksonUtil;
+import com.dbcool.api.util.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+//import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Component;
+
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.*;
+
+import static com.dbcool.api.util.Constants.*;
+
+/**
+ * Created by tangenqing on 3/20/17.
+ */
+@Component
+@SuppressWarnings("unused")
+public class TransformProcess {
+	private final Logger logger = LogManager.getLogger(TransformProcess.class.getName());
+
+	@Autowired
+	private DataTransDdb dataTransDdb; // new
+	@Autowired
+	private DataTransTwoDimension dataTransTD; // old
+	@Autowired
+	private BatchDataTransport batchDataTrans;// old
+	@Autowired
+	private DataTransport dataTransport;// old
+	/**
+	 * 上old，new分别代表旧线上和新线上，dbc_evn为localtoprod，ddb中的url为写死的线上地址
+	 * 上述配置可以实现从旧线上的读取二维关系和旧ddb数据，更新（或初始化）到新ddb中
+	 */
+	/**
+	 * 将旧线上的库移到新环境中（二维关系，ddb，solr等的全部都），dataTransport，batchDataTrans是old
+	 * dataTransDdb，dataTransTD是新的;需要读
+	 */
+	@Autowired
+	private JsonDataTrans trans;
+	@Autowired
+	private ResFormIdsMap resFormIds;
+
+	@Autowired
+	private SolrRebuildCoreService rebuildCoreService;
+
+	// 资源详情对应的 data : dir base set folder org
+	public static Set<String> resSet = new HashSet<String>();
+
+	static {
+		resSet.add(DDB_TB_DIR);
+		resSet.add(DDB_TB_BASE);
+		resSet.add(DDB_TB_SET);
+		resSet.add(DDB_TB_FOLDER);
+		resSet.add(DDB_TB_ORG);
+	}
+	public static final List<String> LARGE_AMOUNT_BASEIDS = Arrays.asList("583929d401a791e500093857",
+			"57fa4eb2afca0e8a0040692a", "58cf982f8206042800cbe70e", "581be94c098b099a0029f3cd",
+			"581c0c7e098b099a0029f40c", "581bec16098b099a0029f3d2", "58aab996955ce1a8004c790b",
+			"57ec9a7eafca0e8a00403110", "57eca184afca0e8a0040311d", "579077c4771e622a002e9b68",
+			"587c868e702488c700607d78", "587c9960702488c700608b38", "586b42e753a5a3a400696f5f",
+			"57ec8ca1afca0e8a00403107", "5820202e887285580000b782");
+
+	// 用户列表
+	public static String ULIST = "ulist";
+	// 权限
+	public static String PERMISSION = "permission";
+	// 配置
+	public static String BASE_CONFIG = "base_config";
+	public static String DIR_CONFIG = "dir_config";
+	public static String SET_CONFIG = "set_config";
+	// 短信
+	public static String SMS_RECORD = "record";
+	public static String SMS_TEMPLET = "sns";
+	// 空间
+	public static String SPACE = "space";
+
+	public static String FORM_FILE_PATH = "sysjson/form/";
+	// 固定form的读取路径
+	public static String RES_FORM_PATH = FORM_FILE_PATH + "res-detail-form.json";
+	public static String BASE_CONFIG_FORM_PATH = FORM_FILE_PATH + "base-config-form.json";
+	public static String DIR_CONFIG_FORM_PATH = FORM_FILE_PATH + "dir-config-form.json";
+	public static String SET_CONFIG_FORM_PATH = FORM_FILE_PATH + "set-config-form.json";
+	public static String PERMISSION_FORM_PATH = FORM_FILE_PATH + "permission-detail-form.json";
+	public static String SMS_RECORD_FORM_PATH = FORM_FILE_PATH + "sms-record-form.json";
+	public static String SMS_TEMPLET_FORM_PATH = FORM_FILE_PATH + "sms-templet-form.json";
+	public static String SPACE_FORM_PATH = FORM_FILE_PATH + "space-form.json";
+
+	//
+	public static String RES_FORM_MAP = "src/main/resources/sysres/res_form_map.properties";
+
+	/**
+	 * 只针对组织的数据转化（包含只在旧表中的二维关系插入到新表中）
+	 */
+	public void transOrg() throws GeneralException {
+
+	}
+
+	/**
+	 * 对统一刷数据后的新增资源的数据转化 主要用于遍历所有的库，避免在转数据过程中遗漏库
+	 *
+	 * @param wr
+	 * @throws GeneralException
+	 */
+	public void checkBases(boolean wr) throws GeneralException {
+		List<String> resTypes = Arrays.asList(DDB_TB_BASE, DDB_TB_DIR);
+		for (String resType : resTypes) {
+			checkNewRes(resType, wr);
+			System.out.println(resType + " trans done");
+		}
+	}
+	/**
+	 *
+	 * @param resType
+	 * @param wr
+	 * @throws GeneralException
+	 */
+	public void checkNewRes(String resType, boolean wr) throws GeneralException {
+		List<String> resIds = gainResIds(resType);
+		List<String> newResIds = new ArrayList<String>();
+		List<String> resConfigIds = new ArrayList<String>();
+		List<String> perIds = new ArrayList<String>();
+		List<String> ulistIds = new ArrayList<String>();
+		for (String resId : resIds) {
+			// 在ddb表中不存在
+			if (null == dataTransDdb.getFromDdb(resType, resId)) {// 查询所有resIds，再查看ddb中是否存在以确定是否新增
+				newResIds.add(resId); //
+				// 有原生的权限
+				TwoDimension perTd = dataTransTD.getSingleTwoDimension(DDB_TB_PERMISSION, null, resType, resId, 0);
+				if (null != perTd) {
+					perIds.add(perTd.getFirstId());
+				}
+				// base和dir有对应的config
+				if (resType.equals(DDB_TB_BASE) || resType.equals(DDB_TB_DIR)) {
+					TwoDimension td = dataTransTD.getSingleTwoDimension(DDB_TB_CONFIG, null, resType, resId, 1);
+					resConfigIds.add(td.getFirstId());
+				}
+				if (resType.equals(DDB_TB_ORG)) {
+					TwoDimension u1 = dataTransTD.getSingleTwoDimension(DDB_TB_ORG, resId, DDB_TB_ULIST, null, 1);
+					TwoDimension u2 = dataTransTD.getSingleTwoDimension(DDB_TB_ORG, resId, DDB_TB_ULIST, null, 2);
+					ulistIds.add(u1.getSecondId());
+					ulistIds.add(u2.getSecondId());
+				}
+			}
+		}
+		if (!newResIds.isEmpty()) {
+			// 转化获取的所有资源详情
+			JsonForm resForm = getJsonFormById(resFormIds.getFormIdByType(resType));
+			batchTransFormData(resType, newResIds, resForm, wr);
+			// 资源config
+			if (!resConfigIds.isEmpty()) {
+				JsonForm resConfig = null;
+				if (resType.equals(DDB_TB_BASE)) {
+					resConfig = getJsonFormById(resFormIds.getBaseconfig());
+				} else if (resType.equals(DDB_TB_DIR)) {
+					resConfig = getJsonFormById(resFormIds.getDirconfig());
+				}
+				batchTransFormData(DDB_TB_CONFIG, resConfigIds, resConfig, wr);
+			}
+			// 原生资源权限数据
+			if (!perIds.isEmpty()) {
+				JsonForm perForm = getJsonFormById(resFormIds.getPermission());
+				batchTransFormData(DDB_TB_PERMISSION, perIds, perForm, wr);
+			}
+			// 用户列表（对resType为org时）
+			if (!ulistIds.isEmpty()) {
+				JsonForm ulistForm = getJsonFormById(resFormIds.getPermission());
+				batchTransFormData(DDB_TB_ULIST, perIds, ulistForm, wr);
+			}
+		}
+		if (resType.equals(DDB_TB_BASE)) {
+			for (String baseId : resIds) {
+				checkOneBase(baseId, wr);// 大库是否要单拿出来？
+			}
+		}
+	}
+
+
+	/**
+	 *
+	 * @param resType
+	 * @param wr
+	 * @throws GeneralException
+	 */
+
+
+    public void checkForms() throws GeneralException {
+    	List<String> noformIds = new ArrayList<String>();
+    	List<String> nodocIds = new ArrayList<String>();
+//    	List<TwoDimension> formTds = dataTransTD.getTwoDimension(DDB_TB_FORM, null, DDB_TB_BASE, null, 1);
+//    	List<TwoDimension> formTds = dataTransTD.getTwoDimension(DDB_TB_CONFIG, null, DDB_TB_BASE, null, 0);//获取所有base的config
+    	List<TwoDimension> formTds = dataTransTD.getPermissionIds();
+    	int i =0;
+    	JsonForm jsonForm = getJsonFormById(resFormIds.getFormIdByType("permission"));
+    	for (TwoDimension td : formTds) {
+//    		if (null == dataTransDdb.getFromDdb(DDB_TB_FORM, td.getFirstId())) {
+    		if (null == dataTransDdb.getFromDdb(DDB_TB_PERMISSION, td.getFirstId())) {
+    			noformIds.add(td.getFirstId());//没有加入form的库id
+//    			nodocIds.add(td.getSecondId());//对应baseId
+//    			transformFormByOldBaseId(td.getSecondId());
+//    			transFormProcess(td.getSecondId(),true);
+    		}
+//    		List<TwoDimension> tds = dataTransTD.getTwoDimension(DDB_TB_BASE, td.getSecondId(), DDB_TB_DOC, null, 0);
+//    		if (null == tds || tds.isEmpty()) {
+//    			nodocIds.add(td.getSecondId());//没有条目的库id
+//    		}
+//    		System.out.println(i++);
+    	}
+    	batchTransFormData(DDB_TB_PERMISSION, noformIds, jsonForm,true);
+    	logger.info(noformIds.size()+"个库没添加到ddb，库id"+noformIds);
+    	System.out.println(noformIds.size()+"个库没添加到ddb，库id"+noformIds);
+//    	logger.info(nodocIds.size()+"个库没有条目，id："+nodocIds);
+//    	System.out.println(nodocIds.size()+"个库没有条目，id："+nodocIds);
+    }
+
+    public void transFormProcess(String baseId,boolean wr) throws GeneralException {
+
+        //库详情
+    	String baseDetail = dataTransport.getFromDdb(DDB_TB_BASE, baseId);
+        String detailFormStr = dataTransDdb.getFromDdb(DDB_TB_FORM, resFormIds.getBase());
+        JsonForm jsonForm = JacksonUtil.json2Obj(detailFormStr, JsonForm.class);
+        JsonData detailData = trans.oldDataToNewData(JacksonUtil.json2Obj(baseDetail, OldJsonData.class), jsonForm);
+        Map<String, Object> prop = detailData.getData_prop();
+		prop.put("form_id", jsonForm.getId());
+		detailData.setData_prop(prop);
+		if (wr) {
+			// 单条存储新数据
+			dataTransDdb.initOneRecordToDdb(DDB_TB_BASE, detailData, new DbcUser());
+		}
+		//config
+		TwoDimension td = dataTransTD.getSingleTwoDimension(DDB_TB_CONFIG, null, DDB_TB_BASE, baseId, 0);
+		String config = dataTransport.getFromDdb(DDB_TB_CONFIG, td.getFirstId());
+        String configFormStr = dataTransDdb.getFromDdb(DDB_TB_FORM, resFormIds.getBaseconfig());
+        JsonForm configForm = JacksonUtil.json2Obj(configFormStr, JsonForm.class);
+        JsonData configData = trans.oldDataToNewData(JacksonUtil.json2Obj(config, OldJsonData.class), configForm);
+        Map<String, Object> conprop = configData.getData_prop();
+		prop.put("form_id", configForm.getId());
+		configData.setData_prop(conprop);
+		if (wr) {
+			// 单条存储新数据
+			dataTransDdb.initOneRecordToDdb(DDB_TB_CONFIG, configData, new DbcUser());
+		}
+		//permission
+		TwoDimension pertd = dataTransTD.getSingleTwoDimension(DDB_TB_PERMISSION, null, DDB_TB_BASE, baseId, 0);
+		String permission = dataTransport.getFromDdb(DDB_TB_PERMISSION, pertd.getFirstId());
+        String perFormStr = dataTransDdb.getFromDdb(DDB_TB_FORM, resFormIds.getPermission());
+        JsonForm perForm = JacksonUtil.json2Obj(perFormStr, JsonForm.class);
+        JsonData perData = trans.oldDataToNewData(JacksonUtil.json2Obj(permission, OldJsonData.class), perForm);
+        Map<String, Object> perprop = perData.getData_prop();
+		prop.put("form_id", perForm.getId());
+		perData.setData_prop(perprop);
+		if (wr) {
+			// 单条存储新数据
+			dataTransDdb.initOneRecordToDdb(DDB_TB_PERMISSION, perData, new DbcUser());
+		}
+        //库form and doc
+        JsonForm baseForm = transformFormByOldBaseId(baseId);
+		for (int page = 0;; page++) {
+			// 分页获取库下条目，避免库下条目过多
+			List<TwoDimension> pagetds = dataTransTD.getTwoDimensionInOrder(DDB_TB_BASE, baseId, DDB_TB_DOC, null, 0,
+					null, page * 1000, 1000);
+			if (null == pagetds || pagetds.isEmpty()) {
+				break;
+			}
+			List<String> ids = new ArrayList<String>();
+			for (TwoDimension td1 : pagetds) {
+				ids.add(td1.getSecondId());
+			}
+			batchTransFormData(DDB_TB_DOC, ids, baseForm, wr, baseId);
+		}
+		System.out.println(baseId + " tran the base done");
+
+	}
+
+	/**
+	 * 查看库中条目是否均存在于ddb中（用于错误数据的再次转化存入和新增数据的另外转化）
+	 *
+	 * @param baseId
+	 * @param wr
+	 * @throws GeneralException
+	 */
+	public void checkOneBase(String baseId, boolean wr) throws GeneralException {
+
+		// 库form and doc
+		JsonForm baseForm = transformFormByOldBaseId(baseId);
+		int i = 0;
+		for (int page = 0;; page++) {
+			// 分页获取库下条目，避免库下条目过多
+			List<TwoDimension> pagetds = dataTransTD.getTwoDimensionInOrder(DDB_TB_BASE, baseId, DDB_TB_DOC, null, 0,
+					null, page * 1000, 1000);
+			if (null == pagetds || pagetds.isEmpty()) {
+				break;
+			}
+			List<String> ids = new ArrayList<String>();
+			for (TwoDimension td : pagetds) {
+				System.out.println(i++);
+				if (null == dataTransDdb.getFromDdb(DDB_TB_DOC, td.getSecondId())) {
+					ids.add(td.getSecondId());
+				}
+			}
+			if (null != ids && !ids.isEmpty()) {
+				batchTransFormData(DDB_TB_DOC, ids, baseForm, wr, baseId);
+			}
+		}
+		System.out.println(baseId + " tran the base done");
+
+	}
+
+	/**
+	 * 指定库和库下条目列表进行针对性转化（用于少量数据出错的库和库下条目） （不建议使用……同时指定库和条目id可能因人为因素出现库和条目不统一的情况）
+	 *
+	 * @param baseId
+	 * @param wr
+	 * @param docIds
+	 * @throws GeneralException
+	 */
+	public void transFormProcess(String baseId, boolean wr, List<String> docIds) throws GeneralException {
+
+		// 库form and doc
+		JsonForm baseForm = transformFormByOldBaseId(baseId);
+
+		batchTransFormData(DDB_TB_DOC, docIds, baseForm, wr, baseId);
+
+		System.out.println(baseId + " tran the base done");
+
+	}
+
+	public void transFormProcess(boolean wr) throws GeneralException, FileNotFoundException {
+		// 所有的固定表单
+		/**
+		 * 1-2 初始化固定form对应的formid
+		 */
+
+		/**
+		 * 2、固定form对应的 data进行刷新
+		 */
+
+		/**
+		 * 2-1 resSet 中form对应的data的转换
+		 */
+		for (String resType : resSet) {
+
+			JsonForm jsonForm = getJsonFormById(resFormIds.getFormIdByType(resType));
+			List<String> ids = gainResIds(resType);
+			batchTransFormData(resType, ids, jsonForm, true);
+		}
+		logger.info("transform res data done");
+		/**
+		 * 2-2、用户列表对应 的base进行刷新
+		 */
+		String[] tableNames = { DDB_TB_ORG, DDB_TB_ULIST };
+		Integer utype1 = MysqlServiceCommon.checkAndCalculateType(tableNames, 1);
+		Integer utype2 = MysqlServiceCommon.checkAndCalculateType(tableNames, 2);
+		List<String> ulistIds = new ArrayList<String>();
+		String sql = "select * from two_dimension where type in (" + utype1 + "," + utype2
+				+ ") and DATE_FORMAT(time,'%Y-%m-%d %H:%i:%s')>'2017-04-11 00:00:00';";
+		List<Map<String, Object>> result = Database.getEntity(sql);
+		for (Map map : result) {
+			ulistIds.add(map.get("second_ID").toString());
+		}
+		JsonForm jsonForm = getJsonFormById(resFormIds.getFormIdByType(ULIST));
+		// 转换data
+		batchTransFormData(DDB_TB_ULIST, ulistIds, jsonForm, true);
+
+		logger.info("transform ulist data done");
+
+		/**
+		 * 2-3、权限
+		 */
+		// 获取 PERMISSION对应的dataIds
+//		List<TwoDimension> permissions = dataTransTD.getPermissionIds();
+		List<String> permissionIds = new ArrayList<String>();
+		String persql = "select * from two_dimension where type in (221200,221300,221400,221500,221700,221900,222300) and DATE_FORMAT(time,'%Y-%m-%d %H:%i:%s')>'2017-04-11 00:00:00' group by first_ID;";
+
+		List<Map<String, Object>> perresult = Database.getEntity(persql);
+		for (Map map : perresult) {
+			permissionIds.add(map.get("first_ID").toString());
+		}
+		JsonForm perForm = getJsonFormById(resFormIds.getFormIdByType(PERMISSION));
+		// 转换data
+		batchTransFormData(DDB_TB_PERMISSION, permissionIds, perForm, true);
+
+		logger.info("transform permission data done");
+
+		/**
+		 * 2-4、配置
+		 */
+
+		// 获取BASE_CONFIG 对应的dataIds
+		List<String> baseConfigIds = getResConfigIds(DDB_TB_BASE);
+		JsonForm baseConfigForm = getJsonFormById(resFormIds.getFormIdByType(BASE_CONFIG));
+		batchTransFormData(DDB_TB_CONFIG, baseConfigIds, baseConfigForm, true);
+
+		logger.info("transform base config data done");
+
+		// 获取DIR_CONFIG 对应的dataIds
+		List<String> dirConfigIds = getResConfigIds(DDB_TB_DIR);
+		JsonForm dirConfigForm = getJsonFormById(resFormIds.getFormIdByType(DIR_CONFIG));
+		// //转换data
+		batchTransFormData(DDB_TB_CONFIG, dirConfigIds, dirConfigForm, true);
+
+		logger.info("transform dir config data done");
+
+		//// 空间数据的dataIds
+		// List<TwoDimension> userSpace =
+		//// dataTransTD.getTwoDimension(DDB_TB_USER, null, DDB_TB_SPACE, null,
+		//// 0);
+		// List<TwoDimension> orgSpace = dataTransTD.getTwoDimension(DDB_TB_ORG,
+		//// null, DDB_TB_SPACE, null, 0);
+		// List<String> spaceIds = new ArrayList<String>();
+		// for (TwoDimension td :userSpace) {
+		// spaceIds.add(td.getSecondId());
+		// }
+		// for (TwoDimension td :orgSpace) {
+		// spaceIds.add(td.getSecondId());
+		// }
+		// JsonForm spaceForm =
+		//// getJsonFormById(resFormIds.getFormIdByType(SPACE));
+		//// //转换data
+		// batchTransFormData(DDB_TB_SPACE, spaceIds, spaceForm,true);
+		// // 获取SET_CONFIG 对应的data
+		// List<String> setConfigIds = null;
+		// //转换data
+		// batchTransFormData("", setConfigIds,
+		//// getJsonFormById(formIdMap.get(SET_CONFIG)));*/
+
+		/**
+		 * 短信(暂时没有需要转化的数据，各个环境)
+		 */
+
+		// // 获取 SMS_RECORD 对应的data
+		// List<String> smsRecordIds = null;
+		// //转换data
+		// batchTransFormData(DDB_TB_RECORD, smsRecordIds,
+		// getJsonFormById(formIdMap.get(SMS_RECORD)));
+		//
+		//
+		// // 获取SMS_TEMPLET 对应的data
+		// List<String> smsTemplateIds = null;
+		// //转换data
+		// batchTransFormData(DDB_TB_SNS, smsTemplateIds,
+		// getJsonFormById(formIdMap.get(SMS_TEMPLET)));
+
+		/**
+		 * 3、转换普通form、 同时转换form的所有doc
+		 */
+		// Long s1 = System.currentTimeMillis();
+		// Integer num = 0;
+		// List<String> BaseIdList = gainResIds(DDB_TB_BASE);
+		// for (String baseId : BaseIdList) {
+		// JsonForm baseForm = transformFormByOldBaseId(baseId);
+		// logger.info("cur baseid = " + baseId + "; cur jsonform : " +
+		// baseForm);
+		// for (int page = 0; ;page++){
+		// //分页获取库下条目，避免库下条目过多
+		// List<TwoDimension> pagetds =
+		// dataTransTD.getTwoDimensionInOrder(DDB_TB_BASE, baseId, DDB_TB_DOC,
+		// null, 0,null,page*1000,1000);
+		// if (null == pagetds || pagetds.isEmpty()) {
+		// break;
+		// }
+		// List<String> ids = new ArrayList<String>();
+		// for (TwoDimension td : pagetds) {
+		// ids.add(td.getSecondId());
+		// }
+		// batchTransFormData(DDB_TB_DOC, ids, baseForm);
+		// }
+		// }
+		// System.out.println(num);
+		// System.out.println(System.currentTimeMillis() - s1);
+		// logger.info("transform custom form and data done");
+		// logger.info("transform process done !");
+	}
+
+	/**
+	 * 获取所有库并进行转化
+	 *
+	 * @throws GeneralException
+	 */
+	public void transAllBaseDoc() throws GeneralException {
+		List<String> BaseIdList = gainResIds(DDB_TB_BASE);//新建的库
+		for (String baseId : BaseIdList) {
+			JsonForm baseForm = transformFormByOldBaseId(baseId);
+			logger.info("cur baseid = " + baseId + ";  cur jsonform : " + baseForm);
+			for (int page = 0;; page++) {
+				// 分页获取库下条目，避免库下条目过多
+				List<TwoDimension> pagetds = dataTransTD.getTwoDimensionInOrder(DDB_TB_BASE, baseId, DDB_TB_DOC, null,
+						0, null, page * 1000, 1000);
+				if (null == pagetds || pagetds.isEmpty()) {
+					break;
+				}
+				List<String> ids = new ArrayList<String>();
+				for (TwoDimension td : pagetds) {
+					ids.add(td.getSecondId());
+				}
+				batchTransFormData(DDB_TB_DOC, ids, baseForm, true);
+			}
+		}
+	}
+
+	/**
+	 * 将库id列表传入，针对特定一些库的转化
+	 *
+	 * @param baseIdList
+	 * @throws GeneralException
+	 */
+	public void transSomeBaseDoc(Integer fromIndex, Integer toIndex) throws GeneralException {
+		List<String> baseIds = gainResIds(DDB_TB_BASE);//对新建的库
+		// for (String baseId : baseIdList) {
+		for (int i = fromIndex; i < toIndex; i++) {
+			String baseId = baseIds.get(i);
+			// 对条目多的库进行排除
+			if (LARGE_AMOUNT_BASEIDS.contains(baseId)) {
+				logger.info("cur baseid = " + baseId + "large amount");
+				continue;
+			}
+			JsonForm baseForm = transformFormByOldBaseId(baseId);
+			System.out.println("the  " + i + "  base running");
+			logger.info("cur baseid = " + baseId + "第" + i + "个库;");
+			for (int page = 0;; page++) {
+				// 分页获取库下条目，避免库下条目过多
+				List<TwoDimension> pagetds = dataTransTD.getTwoDimensionInOrder(DDB_TB_BASE, baseId, DDB_TB_DOC, null,
+						0, null, page * 1000, 1000);
+				if (null == pagetds || pagetds.isEmpty()) {
+					break;
+				}
+				List<String> ids = new ArrayList<String>();
+				for (TwoDimension td : pagetds) {
+					ids.add(td.getSecondId());
+				}
+				batchTransFormData(DDB_TB_DOC, ids, baseForm, true, i);
+			}
+			System.out.println("the  " + i + "  base trans done");
+		}
+		System.out.println("trans some bases done");
+	}
+
+	//对非新建的库的查看
+	public void transSomeBaseDoc() throws GeneralException {
+		List<String> baseIds = new ArrayList<String>();
+		String[] tableNames = { DDB_TB_PERMISSION, DDB_TB_BASE };
+		Integer type0 = MysqlServiceCommon.checkAndCalculateType(tableNames, 0);
+		Integer type1 = MysqlServiceCommon.checkAndCalculateType(tableNames, 1);
+
+		String sql = "select * from two_dimension where type in (" + type0 + "," + type1
+				+ ") "
+				+ " and unix_timestamp(time)<=unix_timestamp('2017-04-11 00:00:00')";//DATE_FORMAT(time,'%Y-%m-%d %H:%i:%s')>'2017-04-11 00:00:00';";
+		List<Map<String, Object>> result = Database.getEntity(sql);
+		for (Map map : result) {
+			baseIds.add(map.get("second_ID").toString());
+		}
+		for (int i = 0; i < baseIds.size(); i++) {
+			String baseId = baseIds.get(i);
+			// 对条目多的库进行排除
+			if (LARGE_AMOUNT_BASEIDS.contains(baseId)) {
+				logger.info("cur baseid = " + baseId + "large amount");
+				continue;
+			}
+			JsonForm baseForm = transformFormByOldBaseId(baseId);
+			System.out.println("the  " + i + "  base running");
+			logger.info("cur baseid = " + baseId + "第" + i + "个库;");
+			List<String> docIds = new ArrayList<String>();
+			String[] tableName = { DDB_TB_BASE, DDB_TB_DOC };
+			Integer type = MysqlServiceCommon.checkAndCalculateType(tableName, 0);
+
+			String docsql = "select * from two_dimension where type in (" + type
+					+ ") "
+					+ " and unix_timestamp(time)>unix_timestamp('2017-04-11 00:00:00')";//DATE_FORMAT(time,'%Y-%m-%d %H:%i:%s')>'2017-04-11 00:00:00';";
+			List<Map<String, Object>> result2 = Database.getEntity(docsql);
+			for (Map map : result2) {
+				docIds.add(map.get("second_ID").toString());
+			}
+			batchTransFormData(DDB_TB_DOC, docIds, baseForm, true, i);
+			System.out.println("the  " + i + "  base trans done");
+		}
+		System.out.println("trans some bases done");
+	}
+	/**
+	 * 获得资源config 的 dataIds
+	 *
+	 * @param resType
+	 * @return
+	 * @throws GeneralException
+	 */
+	public List<String> getResConfigIds(String resType) throws GeneralException {
+		List<String> resConfigIds = new ArrayList<String>();
+		String[] tableNames = { DDB_TB_CONFIG, resType };
+		Integer type0 = MysqlServiceCommon.checkAndCalculateType(tableNames, 0);
+		String sql = "select * from two_dimension where type in (" + type0
+				+ ") and DATE_FORMAT(time,'%Y-%m-%d %H:%i:%s')>'2017-04-11 00:00:00';";
+		System.out.println(sql);
+		List<Map<String, Object>> result = Database.getEntity(sql);
+		for (Map map : result) {
+			resConfigIds.add(map.get("first_ID").toString());
+		}
+//		List<TwoDimension> resConfigTds = dataTransTD.getTwoDimension(DDB_TB_CONFIG, null, resType, null, 0);
+//		for (TwoDimension td : resConfigTds) {
+//			resConfigIds.add(td.getFirstId());
+//		}
+		// }
+
+		return resConfigIds;
+	}
+
+	/**
+	 * 获取所有的普通base id
+	 *
+	 * @return
+	 * @throws GeneralException
+	 */
+	public List<String> gainResIds(String resType) throws GeneralException {
+
+ 		List<String> ids = new ArrayList<String>();
+		String[] tableNames = { DDB_TB_PERMISSION, resType };
+		Integer type0 = MysqlServiceCommon.checkAndCalculateType(tableNames, 0);
+		Integer type1 = MysqlServiceCommon.checkAndCalculateType(tableNames, 1);
+
+		String sql = "select * from two_dimension where type=221900"; //in (" + type0 + "," + type1
+//				+ ") "
+//				+ " and unix_timestamp(time)>unix_timestamp('2017-04-11 00:00:00')";//DATE_FORMAT(time,'%Y-%m-%d %H:%i:%s')>'2017-04-11 00:00:00';";
+		List<Map<String, Object>> result = Database.getEntity(sql);
+		for (Map map : result) {
+			ids.add(map.get("second_ID").toString());
+		}
+		return ids;
+	}
+
+	/**
+	 * 转换旧 Form 存储到数据库 返回新form
+	 *
+	 * @param baseId
+	 * @throws GeneralException
+	 */
+	public JsonForm transformFormByOldBaseId(String baseId) throws GeneralException {
+		// 1 获取旧form Str
+		String oldFormStr = null;
+		try {
+			oldFormStr = dataTransport.getFormJsonStrByBaseId(baseId);
+			System.out.println(oldFormStr);
+//			String formId=null;
+//			String sql = "select * from dbcool.two_dimension where type=111901 and second_ID='"+baseId+"'";
+//			List<Map<String, Object>> result = Database.getEntity(sql);
+//			for (Map map : result) {
+//				formId = map.get("second_ID").toString();
+//			}
+//			oldFormStr = dataTransDdb.getFromDdb(DDB_TB_FORM, formId);
+		} catch (Exception e) {
+			logger.error("get form error , baseId = " + baseId);
+			e.printStackTrace();
+			logger.error(e);
+		}
+
+		if (null == oldFormStr) {
+			return null;
+		}
+		JsonForm jsonForm = null;
+		try {
+			// 2 转换成 新form
+
+			OldJsonForm oldJsonForm = JacksonUtil.json2Obj(oldFormStr, OldJsonForm.class);
+//			List<OldCommonField> oldFields = oldJsonForm.getFields();
+//			for (OldCommonField f : oldFields) {
+//				if (f.getType().equals("loose_date")) {//只重新转化有loose_data的库的表单
+//					jsonForm = JsonFormTrans.oldFormToNewForm(oldJsonForm);
+//					System.out.println(jsonForm);
+//					dataTransDdb.updateOneRecordToDdb(jsonForm,jsonForm.getId(), new DbcUser());
+//					break;
+//				}
+//			}
+			jsonForm = JsonFormTrans.oldFormToNewForm(oldJsonForm);
+			System.out.println(JacksonUtil.obj2Json(jsonForm));
+			editComboRid(jsonForm);
+			System.out.println(JacksonUtil.obj2Json(jsonForm));
+//			Map<String, CommonField> fields =  jsonForm.getFields();
+//			for (String key : fields.keySet()) {
+//				CommonField field = fields.get(key);
+//				if (field.gainSpecificProp("field_type").toString().equals("loose_date")) {
+//					dataTransDdb.updateOneRecordToDdb(jsonForm,jsonForm.getId(), new DbcUser());
+//					System.out.println("有loose_date的库id："+baseId);
+//					logger.info("有loose_date的库id："+baseId);
+//					break;
+//				}
+//			}
+			dataTransDdb.updateOneRecordToDdb(jsonForm,jsonForm.getId(), new DbcUser());
+			logger.info("transform a form, formId = " + jsonForm.getId() + "; baseId = " + baseId);
+
+//			// 3 新form存储到数据库 不改变formId
+//			if (null == dataTransDdb.getFromDdb(DDB_TB_FORM, jsonForm.getId())) {
+//				dataTransDdb.initOneRecordToDdb(DDB_TB_FORM, jsonForm, new DbcUser());
+//			}
+
+		} catch (Exception e) {
+			logger.error("transform or save a form error,  " + oldFormStr);
+			e.printStackTrace();
+			logger.error(e);
+		}
+
+		return jsonForm;
+	}
+
+	/**
+	 * 转换所有的data ids
+	 *
+	 * @param ids
+	 * @param jsonForm
+	 * @throws GeneralException
+	 */
+	// @Async //异步
+	public void batchTransFormData(String resType, List<String> ids, JsonForm jsonForm, boolean wr, Integer num)
+			throws GeneralException {
+
+		logger.info("data size = " + ids.size() + "; resType = " + resType);
+		if (ids.size() == 0 || null == jsonForm) {
+			return;
+		}
+		List<String> subIds = new ArrayList<String>();
+		// 避免太大批量从表中查询data造成超时
+		for (int i = 0; i < ids.size(); i = i + 100) {
+			if (i + 100 > ids.size()) {
+				subIds = ids.subList(i, ids.size());
+			} else {
+				subIds = ids.subList(i, i + 100);
+			}
+			Map<String, List<String>> paraList = new HashMap<>();
+			paraList.put(resType, subIds);
+			Map<String, List<DdbBaseObj>> ddbInfos = null;
+			/**
+			 * 1、 获取ids对应的就json数据
+			 */
+			try {
+				System.out.println("批量" + resType);
+				ddbInfos = batchDataTrans.batchGetFromDdbAsList(paraList);
+			} catch (Exception e) {
+				e.printStackTrace();
+				logger.error("第" + num + "个库中，get json error : " + paraList);
+				logger.error(e);
+			}
+			/**
+			 * 2、转换旧数据
+			 */
+			if (null != ddbInfos.get(resType)) {
+				// List<JsonData> jsonDatas = new ArrayList<JsonData>();
+				for (DdbBaseObj ddbObj : ddbInfos.get(resType)) {
+					try {
+						OldJsonData data = JacksonUtil.json2Obj(ddbObj.getJson(), OldJsonData.class);
+						JsonData jsonData = trans.oldDataToNewData(data, jsonForm);
+						// doc的jsonData中有无formId？
+						Map<String, Object> prop = jsonData.getData_prop();
+						prop.put("form_id", jsonForm.getId());
+						jsonData.setData_prop(prop);
+						// System.out.println(JacksonUtil.obj2Json(jsonData));
+						if (wr) {
+							// 单条存储新数据
+							dataTransDdb.initOneRecordToDdb(resType, jsonData, new DbcUser());
+						}
+
+						// jsonDatas.add(jsonData);
+						logger.info("第" + num + "个库，transform and save a data, dataId = " + jsonData.getId()
+								+ "; resType = " + resType);
+
+					} catch (Exception e) {
+						OldJsonData data = JacksonUtil.json2Obj(ddbObj.getJson(), OldJsonData.class);
+						logger.error("第" + num + "个库，transform or save a data error,dataId = " + data.getId());// dataContent
+																												// =
+																												// "
+																												// +
+																												// ddbObj.getJson()
+																												// +
+						// "; jsonform = " + jsonForm +
+						// "； resType = " + resType);
+						logger.error(e);
+						e.printStackTrace();
+					}
+				}
+			}
+		}
+	}
+
+
+	public void batchTransFormData(String resType, List<String> ids, JsonForm jsonForm, boolean wr)
+			throws GeneralException {
+
+		logger.info("data size = " + ids.size() + "; resType = " + resType);
+		if (ids.size() == 0 || null == jsonForm) {
+			return;
+		}
+		List<String> subIds = new ArrayList<String>();
+		// 避免太大批量从表中查询data造成超时
+		for (int i = 0; i < ids.size(); i = i + 100) {
+			if (i + 100 > ids.size()) {
+				subIds = ids.subList(i, ids.size());
+			} else {
+				subIds = ids.subList(i, i + 100);
+			}
+			Map<String, List<String>> paraList = new HashMap<>();
+			paraList.put(resType, subIds);
+			Map<String, List<DdbBaseObj>> ddbInfos = null;
+			/**
+			 * 1、 获取ids对应的就json数据
+			 */
+			try {
+				System.out.println("批量" + resType);
+				ddbInfos = batchDataTrans.batchGetFromDdbAsList(paraList);
+			} catch (Exception e) {
+				e.printStackTrace();
+				logger.error("get json error : " + paraList);
+				logger.error(e);
+			}
+			/**
+			 * 2、转换旧数据
+			 */
+			if (null != ddbInfos.get(resType)) {
+				// List<JsonData> jsonDatas = new ArrayList<JsonData>();
+				for (DdbBaseObj ddbObj : ddbInfos.get(resType)) {
+					try {
+						OldJsonData data = JacksonUtil.json2Obj(ddbObj.getJson(), OldJsonData.class);
+						System.out.println(data.getId());
+						JsonData jsonData = trans.oldDataToNewData(data, jsonForm);
+						// doc的jsonData中有无formId？
+						Map<String, Object> prop = jsonData.getData_prop();
+						prop.put("form_id", jsonForm.getId());
+						jsonData.setData_prop(prop);
+						System.out.println(JacksonUtil.obj2Json(jsonData));
+						if (wr) {
+							// 单条存储新数据
+							dataTransDdb.initOneRecordToDdb(resType, jsonData, new DbcUser());
+							System.out.println(jsonData.getId() + " trans and save successfully");
+						}
+
+						// jsonDatas.add(jsonData);
+						logger.info(
+								"transform and save a data, dataId = " + jsonData.getId() + "; resType = " + resType);
+
+					} catch (Exception e) {
+						OldJsonData data = JacksonUtil.json2Obj(ddbObj.getJson(), OldJsonData.class);
+						logger.error("transform or save a data error,dataId = " + data.getId());
+						logger.error(e);
+						e.printStackTrace();
+					}
+				}
+			}
+		}
+	}
+
+	public void batchTransFormData(String resType, List<String> ids, JsonForm jsonForm, boolean wr, String baseId)
+			throws GeneralException {
+
+		logger.info("data size = " + ids.size() + "; resType = " + resType);
+		if (ids.size() == 0 || null == jsonForm) {
+			return;
+		}
+		List<String> subIds = new ArrayList<String>();
+		// 避免太大批量从表中查询data造成超时
+		for (int i = 0; i < ids.size(); i = i + 100) {
+			if (i + 100 > ids.size()) {
+				subIds = ids.subList(i, ids.size());
+			} else {
+				subIds = ids.subList(i, i + 100);
+			}
+			Map<String, List<String>> paraList = new HashMap<>();
+			paraList.put(resType, subIds);
+			Map<String, List<DdbBaseObj>> ddbInfos = null;
+			/**
+			 * 1、 获取ids对应的就json数据
+			 */
+			try {
+				System.out.println("批量" + resType);
+				ddbInfos = batchDataTrans.batchGetFromDdbAsList(paraList);
+			} catch (Exception e) {
+				e.printStackTrace();
+				logger.error("get json error : " + paraList);
+				logger.error(e);
+			}
+			/**
+			 * 2、转换旧数据
+			 */
+			if (null != ddbInfos.get(resType)) {
+				// List<JsonData> jsonDatas = new ArrayList<JsonData>();
+				for (DdbBaseObj ddbObj : ddbInfos.get(resType)) {
+					try {
+						OldJsonData data = JacksonUtil.json2Obj(ddbObj.getJson(), OldJsonData.class);
+						System.out.println(JacksonUtil.obj2Json(data));
+						// System.out.println(data.getId());
+						JsonData jsonData = trans.oldDataToNewData(data, jsonForm);
+						// doc的jsonData中有无formId
+						Map<String, Object> prop = jsonData.getData_prop();
+						prop.put("form_id", jsonForm.getId());
+						jsonData.setData_prop(prop);
+						System.out.println(JacksonUtil.obj2Json(jsonData));
+						if (wr) {
+							// 单条存储新数据
+							dataTransDdb.initOneRecordToDdb(resType, jsonData, new DbcUser());
+							System.out.println(
+									"baseId=" + baseId + "," + jsonData.getId() + " trans and save successfully");
+						}
+
+						// jsonDatas.add(jsonData);
+						logger.info("baseId=" + baseId + ",transform and save a data, dataId = " + jsonData.getId()
+								+ "; resType = " + resType);
+
+					} catch (Exception e) {
+						OldJsonData data = JacksonUtil.json2Obj(ddbObj.getJson(), OldJsonData.class);
+						logger.error("baseId=" + baseId + ",transform or save a data error,dataId = " + data.getId());
+						logger.error(e);
+						e.printStackTrace();
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * 根据formid 获取新JsonForm 的结构
+	 *
+	 * @param formId
+	 * @return
+	 */
+	public JsonForm getJsonFormById(String formId) {
+
+		String formStr = null;
+		JsonForm jsonForm = null;
+		try {
+			formStr = dataTransDdb.getFromDdb(DDB_TB_FORM, formId);
+			jsonForm = JsonUtil.json2Obj(formStr, JsonForm.class);
+
+		} catch (GeneralException e) {
+			e.printStackTrace();
+			logger.error("get or transform a form error" + formId);
+			logger.error(e);
+		}
+		return jsonForm;
+	}
+
+	/**
+	 * 根据res，生产新form并保存 返回新id
+	 *
+	 * @param resType
+	 * @return
+	 */
+	public String produceFormIdByResType(String resType, String path) throws FileNotFoundException {
+		String oldStr = StringUtils.getJsonByFilePath(path);
+
+		OldJsonForm oldJsonForm = JacksonUtil.json2Obj(oldStr, OldJsonForm.class);
+		JsonForm jsonForm = JsonFormTrans.oldFormToNewForm(oldJsonForm);
+		String formId = null;
+		try {
+			formId = dataTransDdb.addOneRecordToDdb(DDB_TB_FORM, jsonForm, new DbcUser());
+		} catch (GeneralException e1) {
+			e1.printStackTrace();
+			logger.error(e1);
+
+		}
+		// 将resType与对应生成的resFormId写入文件
+		Properties property = new Properties();
+		try {
+			FileOutputStream oFile = new FileOutputStream(RES_FORM_MAP, true);// true表示追加打开
+			property.setProperty(resType, formId);
+			property.store(oFile, "The New properties file");
+			oFile.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			logger.error(e);
+		} catch (IOException e) {
+			e.printStackTrace();
+			logger.error(e);
+		}
+		logger.info("insert a form, formId = " + formId + "; resType = " + resType);
+		return formId;
+	}
+
+	/**
+	 * 将资源formId更新到系统form Json中初始化到ddb中 三个环境共用一份资源formIds
+	 *
+	 * @param resType
+	 * @param path
+	 * @param formId
+	 * @throws FileNotFoundException
+	 */
+	public void initFormIdToDdb(String resType, String path, String formId, boolean wr) throws FileNotFoundException {
+		try {
+			String formStr = StringUtils.getJsonByFilePath(path);
+			JsonForm jsonForm = JacksonUtil.json2Obj(formStr, JsonForm.class);
+			jsonForm.setId(formId);
+			// Map<String, Object> prop = jsonForm.getForm_prop();
+			// prop.put("form_id", formId);
+
+			if (wr) {
+				dataTransDdb.initOneRecordToDdb(DDB_TB_FORM, jsonForm, new DbcUser());
+				System.out.println(resType + ":" + formId);
+			}
+		} catch (GeneralException e) {
+			logger.error(resType + " init formId failed");
+			e.printStackTrace();
+		}
+		logger.info(resType + " init formId to ddb sucessfully.");
+	}
+	public void transNewDocs() throws GeneralException {
+		String sql = "select * from form_data where data_Id in (select second_ID from two_dimension where type=191200 "
+				+ "and DATE_FORMAT(time,'%Y-%m-%d %H:%i:%s')>'2017-04-11 00:00:00' "
+				+ "and DATE_FORMAT(time,'%Y-%m-%d %H:%i:%s')<'2017-04-21 00:00:00')";
+		String datasql = "select * from two_dimension where type=191200 "
+				+ "and DATE_FORMAT(time,'%Y-%m-%d %H:%i:%s')>'2017-04-11 00:00:00' "
+				+ "and DATE_FORMAT(time,'%Y-%m-%d %H:%i:%s')<'2017-04-20 21:00:00'";
+		List<String> docIds = new ArrayList<String>();
+		List<String> dataIds = new ArrayList<String>();
+		List<Map<String, Object>> result = NewDatabase.getEntity(sql);
+		for (Map map : result) {
+			docIds.add(map.get("data_Id").toString());
+		}
+		List<Map<String, Object>> result2 = NewDatabase.getEntity(datasql);
+		for (Map map : result2) {
+			dataIds.add(map.get("second_ID").toString());
+		}
+		for (String docId :dataIds) {
+			if (!docIds.contains(docId)) {
+				System.out.println(docId);
+			}
+		}
+//		for (String docId :docIds) {
+//			TwoDimension td = dataTransTD.getSingleTwoDimension(DDB_TB_BASE, null, DDB_TB_DOC, docId, 0);
+//			String oldFormStr = dataTransport.getFormJsonStrByBaseId(td.getFirstId());
+//			JsonForm form = JsonFormTrans.oldFormToNewForm(JacksonUtil.json2Obj(oldFormStr, OldJsonForm.class));
+//			batchTransFormData(DDB_TB_DOC, Arrays.asList(docId), form, true, td.getFirstId());
+//		}
+
+	}
+	/**
+	 * 查看三维关系表中的viewId是否均在ddb中有相应的数据
+	 * @throws GeneralException
+	 */
+	public void getViews() throws GeneralException {
+		String sql = "select * from three_dimension where floor(type/1000000)=20";
+		List<Map<String, Object>> result = Database.getEntity(sql);
+		int i =0;
+//		List<String> viewIds = new ArrayList<String>();
+		for (Map map : result) {
+//			viewIds.add(map.get("second_ID").toString());
+			if (null == dataTransDdb.getViewDataFromDdb(map.get("first_ID").toString())) {
+				System.out.println(map.get("first_ID").toString());
+				logger.info("有二维关系，但未存入ddb的viewId："+map.get("first_ID").toString());
+			}
+			System.out.println(i++);
+			System.out.println(dataTransDdb.getViewDataFromDdb(map.get("first_ID").toString()));
+		}
+
+	}
+
+	@SuppressWarnings("rawtypes")
+	public void transAbase(String baseId) throws GeneralException {
+		//重新从旧系统ddb中获取表单信息，转化后存入新ddb（覆盖旧的，可保证最新内容）
+		String oldFormStr = dataTransport.getFormJsonStrByBaseId(baseId);
+		System.out.println(oldFormStr);
+		OldJsonForm oldJsonForm = JacksonUtil.json2Obj(oldFormStr, OldJsonForm.class);
+		JsonForm form = JsonFormTrans.oldFormToNewForm(oldJsonForm);
+		refNameAndDirTree(form);
+		editComboRid(form);
+		System.out.println(form);
+		dataTransDdb.initOneRecordToDdb(DDB_TB_FORM,form, new DbcUser());
+		TwoDimension formtd = dataTransTD.getSingleTwoDimension(DDB_TB_FORM, null, DDB_TB_BASE, baseId, 1);
+		String json = dataTransDdb.getFromDdb(DDB_TB_FORM, formtd.getFirstId());
+		JsonForm form = JacksonUtil.json2Obj(json, JsonForm.class);
+		//获取库下条目doc（5月11日刷5月7日之后的）(5月12日刷5月11日19点以后的)
+		List<String> docIds = new ArrayList<String>();
+		String sql = "select * from two_dimension where type=191200 and first_ID='" +baseId
+		+ "' and unix_timestamp(time)>unix_timestamp('2017-04-20 15:08:56')";//DATE_FORMAT(time,'%Y-%m-%d %H:%i:%s')>'2017-04-11 00:00:00';";
+		List<Map<String, Object>> result = Database.getEntity(sql);
+		for (int i=4000,length=result.size();i<length;i++) {
+//		for (Map map : result) {
+			Map<String, Object> map = result.get(i);
+			String docId = map.get("second_ID").toString();
+			//对每条doc转化后存入ddb
+			try {
+				docTrans(form, docId);
+				System.out.println(i+",docId:"+docId+", add to ddb successfully");
+				logger.info(i+",docId:"+docId+", add to ddb successfully");
+			} catch (Exception e) {
+				logger.error(i+",docId:"+docId+", add to ddb wrong");
+				e.printStackTrace();
+			}
+			//查询每条doc对应的所有二维关系，插入到新数据库中
+			String sqlstr = "select * from two_dimension where first_ID='"+docId
+					+"' or second_ID='"+docId+"'";
+			List<Map<String, Object>> relations = Database.getEntity(sqlstr);
+			List<TwoDimensionCreation> tdAdd = new ArrayList<TwoDimensionCreation>();
+			for (Map td : relations) {
+				tdAdd.add(new TwoDimensionCreation(td.get("first_ID").toString(), td.get("second_ID").toString(), (Integer)td.get("type")));
+			}
+			if (!tdAdd.isEmpty()) {
+				try {
+					dataTransTD.batchAddTwoDimensionsWithType(tdAdd);
+					System.out.println(i+",docId:"+docId+", batch add tds successfully");
+					logger.info(i+",docId:"+docId+", batch add tds successfully");
+				} catch (Exception e) {
+					logger.error(i+",docId:"+docId+", batch add tds wrong");
+					e.printStackTrace();
+				}
+			}
+			//对每条doc初始化solr
+			try {
+				rebuildCoreService.rebuildOneDoc(docId);
+				System.out.println(i+",docId:"+docId+", add to solr successfully");
+				logger.info(i+",docId:"+docId+", add to solr successfully");
+			} catch (Exception e) {
+				logger.error(i+",docId:"+docId+", add to solr wrong");
+				e.printStackTrace();
+			}
+			docIds.add(docId);
+		}
+		logger.info("库id："+baseId+";docIds:"+docIds);
+	}
+
+	/**
+	 * 获取旧docStr，转化成新格式并存入ddb
+	 * @param form
+	 * @param docId
+	 * @throws GeneralException
+	 */
+	private void docTrans(JsonForm form, String docId) throws GeneralException {
+		String docStr = dataTransport.getFromDdb(DDB_TB_DOC, docId);
+		OldJsonData data = JacksonUtil.json2Obj(docStr, OldJsonData.class);
+		System.out.println(JacksonUtil.obj2Json(data));
+		JsonData jsonData = trans.oldDataToNewData(data, form);
+		// doc的jsonData中无formId
+		Map<String, Object> prop = jsonData.getData_prop();
+		prop.put("form_id", form.getId());
+		jsonData.setData_prop(prop);
+			System.out.println(JacksonUtil.obj2Json(jsonData));
+		dataTransDdb.initOneRecordToDdb(DDB_TB_DOC, jsonData, new DbcUser());
+	}
+
+	/**
+	 * Form转化后的普通combo的rid错误，进行修正
+	 * @param form
+	 */
+	private void editComboRid(JsonForm form) {
+		List<String> speCombo = Arrays.asList("loose_date","ref_name","user","ref_doc","ref_dir_tree");//新的地址不适用了"address"
+		List<Integer> subFids = new ArrayList<Integer>();
+		Map<Integer, List<Integer>> fidMap = new HashMap<Integer, List<Integer>>();
+		Map<String, CommonField> fields = form.getFields();
+		for (String key : fields.keySet()) {
+			CommonField field = fields.get(key);
+			Object fieldType = field.gainSpecificProp("field_type");
+			if (speCombo.contains(fieldType.toString())) {
+				List<Integer> fids = new ArrayList<Integer>();
+				Integer fid = field.getFid();
+				getSubFids(field, fields,fids);
+				subFids.addAll(fids);
+				fidMap.put(fid, fids);
+			}
+			}
+			for (Integer key : fidMap.keySet()) {
+				CommonField field = fields.get(key.toString());
+				Integer rid = (Integer) field.gainSpecificProp("rid");
+				List<Integer> sub = fidMap.get(key);
+				for (Integer id : sub) {
+					CommonField subfield = fields.get(id.toString());
+					Integer subRid = (Integer) subfield.gainSpecificProp("rid");
+					subfield.putSpecificProp("rid", subRid-rid+1);
+					fields.put(subfield.getFid().toString(), subfield);
+				}
+			}
+			for (String key : fields.keySet()) {
+				if (!subFids.contains(Integer.parseInt(key))) {
+					CommonField field = fields.get(key);
+					field.putSpecificProp("rid", 1);
+					fields.put(field.getFid().toString(), field);
+				}
+			}
+	}
+
+	/**
+	 * 获取combo的所有子字段fid
+	 * @param field
+	 * @param fields
+	 * @param subFids
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	private List<Integer> getSubFids(CommonField field, Map<String, CommonField> fields, List<Integer> subFids) {
+		try {
+  			String type = field.getType();
+  			if (type.equals("combo")) {
+  				List<Integer> subList = (List<Integer>) field.gainSpecificProp("sub_fid_list");
+  				for (Integer fid : subList) {
+  					if (!subFids.contains(fid)) {
+  						subFids.add(fid);
+  					}
+  					getSubFids(fields.get(fid.toString()), fields, subFids);
+  				}
+  			}
+  		} catch (Exception e) {
+  			e.printStackTrace();
+  		}
+  		return subFids;
+
+	}
+
+	/**
+	 * Form转化后ref_name,ref_dir_tree的个别prop有问题，进行修正
+	 * @param form
+	 */
+	@SuppressWarnings("unchecked")
+	private void refNameAndDirTree(JsonForm form) {
+		Map<String, CommonField> fields = form.getFields();
+		for (String key : fields.keySet()) {
+			CommonField field = fields.get(key);
+			Object fieldType = field.gainSpecificProp("field_type");
+			List<Integer> subList = (List<Integer>) field.gainSpecificProp("sub_fid_list");
+			if (fieldType.toString().equals("ref_dir_tree")) {
+				Object tardir = field.gainSpecificProp("target_dir");
+				if (null != tardir && !"".equals(tardir) && !(tardir instanceof List)) {
+					field.putSpecificProp("target_dir", Arrays.asList(tardir.toString()));
+				}
+				CommonField subField = fields.get(subList.get(0).toString());
+				subField.putSpecificProp("max_record", 0);
+				fields.put(subList.get(0).toString(), subField);
+			}
+			if (fieldType.toString().equals("ref_name")) {
+				for(Integer fid : subList) {
+					CommonField subField = fields.get(fid.toString());
+					Object subType = subField.gainSpecificProp("field_type");
+					if (subType.toString().equals("single_line_text")) {
+						subField.putSpecificProp("required", false);
+						fields.put(fid.toString(), subField);
+						break;
+					}
+				}
+				fields.put(key, field);
+			}
+		}
+	}
+	public void editBaseForm(String baseId) throws GeneralException {
+//	    String str = dataTransDdb.getFromDdb(DDB_TB_FORM, "57ec8ca2afca0e8a00403108");
+//	    System.out.println(str);
+//	    JsonForm jsonForm = JacksonUtil.json2Obj(str, JsonForm.class);
+//	    refNameAndDirTree(jsonForm);
+//	    System.out.println(jsonForm);
+	    String oldFormStr = dataTransport.getFormJsonStrByBaseId(baseId);
+        System.out.println(oldFormStr);
+        OldJsonForm oldJsonForm = JacksonUtil.json2Obj(oldFormStr, OldJsonForm.class);
+        JsonForm form = JsonFormTrans.oldFormToNewForm(oldJsonForm);
+        refNameAndDirTree(form);
+        System.out.println(form);
+        editComboRid(form);
+        System.out.println(form);
+	}
+}

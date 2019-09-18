@@ -1,0 +1,47 @@
+zookeeper常用命令：
+
+1.上传配置文件（夹）到zookeeper：
+
+①在solr-6.6.0/server/scripts/cloud-scripts目录下：
+	./zkcli.sh -zkhost ZK_HOST(zookeeper的地址，注意有无/solr) -cmd upconfig -confdir /home/ec2-user/conf(配置文件夹本地地址) -confname roleconf(传到zookeeper后的配置名)
+
+②在zookeeper-3.4.10/bin目录下（目前没好使过）
+	./zkcli.sh -zkhost  ZK_HOST -cmd upconfig -confdir /data/conf/ -confname test     （上传文件夹）
+
+　　-confdir：这个指的是 本地上传的文件的位置
+
+　　-confname：上传后在zookeeper中的节点名称，任意起，与后将创建的collection对应较好,如role---roleconf
+
+③上传文件
+./zkcli.sh  -zkhost ZK_HOSTS -cmd putfile /configs/test/data-config.xml /data/solrhome/myconf/conf/data-config.xml  (上传单个文件)
+
+　　参数说明  putfile  后 第一个/configs/test/data-config.xml  指的是 zookeeper中的配置文件 ， /data/solrhome/myconf/conf/data-config.xml这个是本地文件路径
+
+　　注意： 单个文件上传先要删除，不然会报错。
+
+2.zookeeper集群操作上传的文件
+
+　　 进入zookeeper的bin下
+
+　　　./zkCli.sh  连接zookeeper集群
+
+①　　ls /configs/myconf    查看上传的配置文件
+
+②　　delete /configs/myconf/solrconfig.xml   删除文件
+
+③　　delete /configs/myconf    删除空文件夹
+
+④    get  /configs/myconf/solrconfig.xml   查看文件内容
+
+⑤　 rmr /configs/myconf  递归删除（慎重使用）
+
+3.debug模式启动zookeeper
+./zkServer.sh start-foreground
+
+4.将本地文件上传到zookeeper：则新开的solrNode不用再有solr.xml文件
+命令：
+bin/solr zk cp file:../solr/testnode/solr.xml zk:/solr.xml -z 172.31.12.151:2181
+
+5.在zookeeper创建目录
+./zkcli.sh -z 172.31.12.151:2181,172.31.6.181:2181,172.31.3.49:2181 -cmd makepath /solr
+

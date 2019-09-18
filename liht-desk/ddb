@@ -1,0 +1,39 @@
+如何估计应用程序所需的读取和写入容量单位数量？一个写入容量单位能支持您每秒对最大 1KB 的项目执行一次写入操作。
+同样，一个读取容量单位让您能够每秒对最大 4KB 的项目执行一次强一致性读取（或执行两次最终一致性读取）。更大的项目将需要更多容量。
+您可以通过以下方式计算需要的读取和写入容量单位数量，估算每秒需要执行的读取或写入次数，乘以项目的大小（进位到最接近的 KB）。
+
+写入所需要的容量单位 = 每秒的项目写入量 x 1KB 块的项目大小
+读取所需要的容量单位* = 每秒的项目读取量 x 4KB 块的项目大小
+* 从每秒读取次数角度来看，如果您使用最终一致性读取，您会得到双倍的吞吐量。
+
+如果项目的大小低于 1 KB，则每个读取容量单位将为您提供每秒一次的强一致性读取容量，每个写入容量单位将为您提供每秒一次写入的容量。
+例如，如果项目大小为 512 字节，您需要每秒从表中读取 100 个项目，则您需要预配置 100 个读取容量单位。
+
+如果项目的大小高于 4 KB，则您应该计算所需的读取容量和写入容量的单位数量。例如，如果项目大小为 4.5KB，您希望每秒进行 100 次强一致性读取，
+则需要预配置 100（每秒读取次数）x 2（存储 4.5KB 所需的 4KB 块量）= 200 个读取容量单位。
+请注意，需要的读取容量单位数量取决于每秒读取的项目数量，而不是 API 调用的数量。例如，如果您需要每秒从表中读取 500 个项目，
+而且这些项目大小为 4KB 或更小，则需要 500 个读取容量单位。无论您是进行 500 次单独 GetItem 调用，还是进行 50 次 BatchGetItem 调用并每次返回 10 个项目，都不会产生影响。
+
+问：一致性级别是否影响吞吐率？
+
+是的。对于特定的资源分配，DynamoDB 表可以实现的读取速率在强一致性读取和最终一致性读取之间是不同的。如果您请求“1000 个读取容量单位”，DynamoDB 将分配足够的资源，
+以便对高达 4KB 的项实现每秒 1000 次强一致读取。如果您需要实现对最大 4KB 项目的每秒 1000 次的最终一致读取，则只需要一半的容量，即 500 个读取容量单位。
+有关为表选择适当吞吐率的更多指导，请参阅预配置吞吐量指南。
+
+DemoThread dt = new DemoThread();
+dt.start();  //用于启动线程，并自动执行run方法。
+dt.run(); //只是单纯的对象调用，在主线程中执行，并不开启子线程。
+
+<listener>
+  <listener-class>com.dbcool.api.debug.service.ThreadService</listener-class>
+</listener>
+
+
+Oct 13, 2017 3:03:51 AM org.apache.catalina.loader.WebappClassLoaderBase loadClass
+INFO: Illegal access: this web application instance has been stopped already.  Could not load org.apache.http.pool.AbstractConnPool$3.  The eventual following stack trace is caused by an error thrown for debugging purposes as well as to attempt to terminate the thread which caused the illegal access, and has no functional impact.
+java.lang.IllegalStateException
+	at org.apache.catalina.loader.WebappClassLoaderBase.loadClass(WebappClassLoaderBase.java:1745)
+	at org.apache.catalina.loader.WebappClassLoaderBase.loadClass(WebappClassLoaderBase.java:1703)
+	at org.apache.http.pool.AbstractConnPool.closeIdle(AbstractConnPool.java:541)
+	at org.apache.http.impl.conn.PoolingHttpClientConnectionManager.closeIdleConnections(PoolingHttpClientConnectionManager.java:403)
+	at com.amazonaws.http.IdleConnectionReaper.run(IdleConnectionReaper.java:188)

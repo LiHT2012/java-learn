@@ -1,0 +1,90 @@
+ @JsonTypeInfo和@JsonSubTypes
+
+用于维持java类的子类信息，将子类对象类型信息嵌入到json中，以便反序列化创建具体的对象。
+
+ 当java对象中含List<Object>时，如果Object一个抽象类或接口，这里就会出现java多态的现象，比如，List<Animal>,Animal是个抽象类，并且有多个子类时，由于List中保存的Animal没有明确指向具体的子类或实现类，json反序列化java对象时就会抛出提示：Exception in thread "main" com.fasterxml.jackson.databind.JsonMappingException:Can not construct instance of Animal, problem: abstract types either need to be mapped to concrete types, have custom deserializer, or be instantiated with additional type information
+
+@JsonTypeInfo与@JsonSubTypes就是解决此类问题，通过注解，可以在序列化时，保存具体的类型信息到json中，当json反序列到java对象时，就可以根据具体类型信息创建正确的java对象。
+
+ @JsonTypeInfo(use=Id.CLASS,include=As.PROPERTY,property="@class")  
+@JsonSubTypes({@Type(value=Lion.class,name="lion"),@Type(value=Elephant.class,name="elephant")})  
+public abstract class Animal {  
+    String name;  
+    String type;  
+} 
+
+//TODO PluginConfigCachedBean若类型为abstract，需添加如下注解 以避免上述序列化的问题
+
+@JsonTypeInfo(use = Id.CLASS)
+@JsonSubTypes(value = { @Type(value = ReMarkPluginCachedBean.class),@Type(value = PicklistPluginCachedBean.class) })
+
+private volatile boolean isRunning;   
+
+public void close(){  
+isRunning = false;  
+this.interrupt();  
+}  
+
+@Override  
+public void start() {  
+isRunning = true;  
+start();  
+}  
+      
+@Override  
+public void run() {  
+while(isRunning){  
+    try{  
+        Thread.sleep(1000);   
+        if(isRunning)  
+            myAction();  
+    }catch(Exception e){  
+        if(isRunning) //强制Interrupt会有异常java.lang.InterruptedException: sleep interrupted，马上退出  
+            e.printStackTrace();  
+    }  
+}  
+}  
+
+vim常用命令
+uu 操作回退
+:/搜索关键字
+shift+g 到文件底部
+hjkl从左到右分别为左，下，上，右
+vim进入文件为命令/编辑模式，i进入insert插入模式，esc回到命令模式
+命令模式下yy为复制整行，p为粘帖，dd为剪切
+命令模式下输入:进入末行模式，：w 保存编辑内容，write , :q 退出quit ：wq 保存并退出 前面加！表示强制 ：！q强制退出，：x = :wq 
+
+原catalina.sh中CATALINA_PID=$PRGDIR/CATALINA_PID
+改为
+
+
+
+
+vim .bashrc(写简化命令)   source .bashrc(使命令生效)
+alias server-test1='ssh ubuntu@54.222.162.170'
+alias redis-prod='ssh ec2-user@54.223.49.16'
+alias server-test2='ssh ubuntu@54.222.207.155'
+alias redis-solr-test1='ssh ubuntu@54.223.144.225'
+alias factube-prod='ssh ec2-user@54.223.16.132'
+alias server-api1='ssh ec2-user@54.223.78.176'
+
+cd .ssh
+ls
+vim **.pub为本账户的public key
+
+tomcat文件目录及作用
+
+bin (运行脚本）
+lib (核心库文件）
+-----------------------以上多实例共用，以下的每个实例各拥有一份
+conf (配置文件）
+logs (日志目录)
+temp (临时目录)
+webapps (自动装载的应用程序的目录）
+work (JVM临时文件目录[java.io.tmpdir])
+
+（安装一个tomcat运行多个实例：http://blog.csdn.net/panpan639944806/article/details/24414143）
+CATALINA_HOME   在bin目录下vim startup.bat中设置，指向tomcat的安装目录
+CATALINA_BASE  指向各实例目录---在各实例下的startup.sh中可设置
+CATALINA_HOME是Tomcat的安装目录，CATALINA_BASE是Tomcat的工作目录。如果我们想要运行Tomcat的 多个实例，但是不想安装多个Tomcat软件副本。那么我们可以配置多个工作目录，每个运行实例独占一个工作目录，但是共享同一个安装目录
+(tomcat各目录作用：http://jingyan.baidu.com/article/f3e34a128551b7f5ea653544.html)
